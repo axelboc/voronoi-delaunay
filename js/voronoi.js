@@ -4,48 +4,81 @@
  */
 var VoronoiSettings = (function () {
 
-	var _shopsCount = 300;
-	var _stepByStep = false;
-	var _fitRootTriangle = false;
+	var _shopsCount = 50;
+	var _gridSpacing = 10;
 	
-	var _vertexSize = 3;
-	var _showShops = false;
+	var _stepByStep = false;
+	var _showShops = true;
+	var _vertexSize = 2;
 	
 
+	/**
+	 * The number of shops in the city.
+	 * @type {Integer}
+	 */
 	var SHOPS_COUNT = function () {
 		return _shopsCount;
 	};
-	
+
+	/**
+	 * The grid spacing, used to align the source vertices on a grid.
+	 * Minimum allowed value is 1.
+	 * @type {Integer}
+	 */
+	var GRID_SPACING = function () {
+		return _gridSpacing;
+	};
+
+
+	/**
+	 * Step-by-step mode, in which the Delaunay triangulation is built one vertex at a time.
+	 * @type {Boolean}
+	 */
 	var STEP_BY_STEP = function () {
 		return _stepByStep;
 	};
-	
-	var FIT_ROOT_TRIANGLE = function () {
-		return _fitRootTriangle;
-	};
-	
-	
-	var VERTEX_SIZE = function () {
-		return _vertexSize;
-	}
-	
+
+	/**
+	 * Indicates whether to display the shops on the final Voronoi diagram.
+	 * @type {Boolean}
+	 */
 	var SHOW_SHOPS = function () {
 		return _showShops;
+	};
+
+	/**
+	 * The size of the vertices on the canvas.
+	 * @type {Integer}
+	 */
+	var VERTEX_SIZE = function () {
+		return _vertexSize;
 	};
 	
 	
 	return {
 		SHOPS_COUNT: SHOPS_COUNT,
+		GRID_SPACING: GRID_SPACING,
 		STEP_BY_STEP: STEP_BY_STEP,
-		FIT_ROOT_TRIANGLE: FIT_ROOT_TRIANGLE,
-		VERTEX_SIZE: VERTEX_SIZE,
-		SHOW_SHOPS: SHOW_SHOPS
+		SHOW_SHOPS: SHOW_SHOPS,
+		VERTEX_SIZE: VERTEX_SIZE
 	};
 
 })();
 
 
-var city, ctx1, ctx2, ctx3;
+/**
+ * The city instance.
+ * @type {City}
+ */
+var city;
+
+
+/**
+ * The three canvas drawing contexts.
+ * @type {Object}
+ */
+var ctx1, ctx2, ctx3;
+
 
 /**
  * Entry point.
@@ -58,35 +91,33 @@ var city, ctx1, ctx2, ctx3;
 		ctx2 = document.getElementById("voronoi2").getContext('2d');
 		ctx3 = document.getElementById("voronoi3").getContext('2d');
 		
-		if (VoronoiSettings.FIT_ROOT_TRIANGLE() === true) {
-			city = new City(VoronoiSettings.SHOPS_COUNT(), canvas1.width / 2, canvas1.height / 2);
+		// Instanciate a City object
+		city = new City(canvas1.width, canvas1.height);
+		
+		if (!VoronoiSettings.STEP_BY_STEP()) {
+			// Computing and draw the Voronoi diagram
+			city.voronoi();
+			city.clearAndDrawVoronoi(VoronoiSettings.SHOW_SHOPS());
 		} else {
-			city = new City(VoronoiSettings.SHOPS_COUNT(), canvas1.width, canvas1.height);
-		}
-		
-		var nextBtn = document.getElementById("next_btn");
-		var nextFuntion = function () {
-			if (!city.delaunayComplete) {
-				city.nextDelaunayStep(true);
-			} else if (!city.voronoiComplete) {
-				nextBtn.classList.add("hidden");
-				nextBtn.removeEventListener("click", nextFuntion);
-				
-				city.computeVoronoi();
-				city.clearAndDrawVoronoi(VoronoiSettings.SHOW_SHOPS());
-			}
-		}
-		
-		if (VoronoiSettings.STEP_BY_STEP() === true) {
 			// Start computing the Delaunay triangulation
 			city.initDelaunay(true);
 			
-			// Show the 'Next' button and add click handler
+			// Implement 'Next' button's behaviour
+			var nextBtn = document.getElementById("next_btn");
+			var nextFuntion = function () {
+				if (!city.delaunayComplete) {
+					city.nextDelaunayStep(true);
+				} else if (!city.voronoiComplete) {
+					nextBtn.classList.add("hidden");
+					nextBtn.removeEventListener("click", nextFuntion);
+					
+					city.computeVoronoi();
+					city.clearAndDrawVoronoi(VoronoiSettings.SHOW_SHOPS());
+				}
+			};
+			
 			nextBtn.classList.remove("hidden");
 			nextBtn.addEventListener("click", nextFuntion, false);
-		} else {
-			city.voronoi();
-			city.clearAndDrawVoronoi(VoronoiSettings.SHOW_SHOPS());
 		}
 	};
 
