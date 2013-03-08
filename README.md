@@ -16,7 +16,7 @@ Latest Fixes
 - Improved JS implementation of Bowyer-Watson algorithm.
 - Fixed bugs with creating vertical edges.
 - Prevented creation of two source vertices at the same position.
-- Implemented grid spacing setting (see below).
+- Implemented grid spacing feature (see below).
 
 
 Usage
@@ -29,13 +29,12 @@ The object `VoronoiSettings` in file `js/voronoi.js` contains some basic configu
 - the grid spacing, in pixels.
 
 The grid spacing setting is used to position the source vertices in a grid: a value of 10 means that their coordinates will be multiples of 10.
-Note that, depending on the number of vertices, choosing a spacing that is too large may result in the script running a infinite loop, as it will not find enough valid positions to place the vertices.
+Note that, depending on the number of vertices, choosing a spacing that is too large may result in the script running an infinite loop, as it will not find enough valid positions to place the vertices.
 
 The script also implements a mode that shows the construction of the Delaunay triangulation step by step.
-
-In step-by-step mode, 3 canvases are used, that show:
+In this mode, 3 canvases are used, that show:
 1. the triangles that are about to be deleted;
-2. the outline of the cavity formed by the deleted triangles; and
+2. the perimeter of the cavity formed by the deleted triangles; and
 3. the triangles that were just added to the triangulation.
 
 
@@ -45,4 +44,5 @@ Remaining Work
 - Improve algorithm for deleting initial Delaunay vertices.
 - Improve algorithm for building Voronoi edges from Delaunay triangulation.
 - Prevent infinite loop when minimum spacing is too high for chosen number of source vertices.
-- Add more features (new settings for graphics parameters and canvas size; let user insert vertices, draw boundaries of diagram, move vertices, etc.)
+- Add more features (minimum spacing; more graphics settings; adjustable canvas size; let user insert vertices, draw boundaries of diagram, move vertices, etc.)
+

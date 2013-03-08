@@ -4,8 +4,8 @@
  */
 var VoronoiSettings = (function () {
 
-	var _shopsCount = 50;
-	var _gridSpacing = 10;
+	var _shopsCount = 80;
+	var _gridSpacing = 4;
 	
 	var _stepByStep = false;
 	var _showShops = true;

@@ -19,7 +19,7 @@ var City = function (width, height) {
 	 */
 	this.shops = [];
 
-	var positions = [], minSpacing = VoronoiSettings.MIN_SPACING(), randX, randY;
+	var positions = [], minSpacing = VoronoiSettings.GRID_SPACING(), randX, randY;
 	
 	// Generate the city's shops.
 	for (var i = 0; i < VoronoiSettings.SHOPS_COUNT(); i += 1) {
