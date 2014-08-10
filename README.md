@@ -9,16 +9,6 @@ The Bowyer-Watson algorithm is an insertion algorithm that builds the Delaunay t
 This program does not use any JavaScript library.
 
 
-Latest Fixes
-------------
-
-**2013/03/09**
-- Improved JS implementation of Bowyer-Watson algorithm.
-- Fixed bugs with creating vertical edges.
-- Prevented creation of two source vertices at the same position.
-- Implemented grid spacing feature (see below).
-
-
 Usage
 -----
 
@@ -36,13 +26,3 @@ In this mode, 3 canvases are used, that show:
 1. the triangles that are about to be deleted;
 2. the perimeter of the cavity formed by the deleted triangles; and
 3. the triangles that were just added to the triangulation.
-
-
-Remaining Work
---------------
-
-- Improve algorithm for deleting initial Delaunay vertices.
-- Improve algorithm for building Voronoi edges from Delaunay triangulation.
-- Prevent infinite loop when minimum spacing is too high for chosen number of source vertices.
-- Add more features (minimum spacing; more graphics settings; adjustable canvas size; let user insert vertices, draw boundaries of diagram, move vertices, etc.)
-
