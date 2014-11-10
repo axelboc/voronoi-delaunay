@@ -527,7 +527,7 @@
 	*/
 	
 	
-	// Add the prototype to the Voronoi namespace in the global context
+	// Add prototype to `Voronoi` namespace in global context
 	Voronoi.City = City;
 	
 }(window.Voronoi = window.Voronoi || {}));

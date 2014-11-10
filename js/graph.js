@@ -147,7 +147,7 @@
 	};
 	
 	
-	// Add the three graph prototypes to the Voronoi namespace in the global context
+	// Add prototypes to `Voronoi` namespace in global context
 	Voronoi.Vertex = Vertex;
 	Voronoi.Edge = Edge;
 	Voronoi.Triangle = Triangle;

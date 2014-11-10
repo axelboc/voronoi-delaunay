@@ -66,11 +66,11 @@ var VoronoiSettings = (function () {
 })();
 
 
-/**
- * Entry point.
- */
 (function (window, Voronoi) {
-
+	
+	/**
+	 * Entry point.
+	 */
 	window.onload = function () {
 		// Get the dimensions of the main element, which wraps the canvas
 		var main = document.querySelector(".main");
