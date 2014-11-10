@@ -1,18 +1,17 @@
 Voronoi - Delaunay
 ==================
 
-This JavaScript program positions a set of vertices (or shops) randomly on an HTML5 canvas (the city), then computes and draws their [**Voronoi diagram**](http://en.wikipedia.org/wiki/Voronoi_diagram).
+This JavaScript program positions a set of vertices (the *shops*) randomly on an HTML5 canvas (the *city*), then computes and draws their [**Voronoi diagram**](http://en.wikipedia.org/wiki/Voronoi_diagram).
 
-The script first computes the [Delaunay triangulation](http://en.wikipedia.org/wiki/Delaunay_triangulation) of the vertices using the [Bowyer-Watson algorithm](http://en.wikipedia.org/wiki/Bowyer%E2%80%93Watson_algorithm), then deduces the Voronoi diagram from the triangulation.
-The Bowyer-Watson algorithm is an insertion algorithm that builds the Delaunay triangulation one vertex at a time.
+The script first computes the [Delaunay triangulation](http://en.wikipedia.org/wiki/Delaunay_triangulation) of the vertices using the [Bowyer-Watson algorithm](http://en.wikipedia.org/wiki/Bowyer%E2%80%93Watson_algorithm). It then deduces the Voronoi diagram from the triangulation. The Bowyer-Watson algorithm is an insertion algorithm; it builds the Delaunay triangulation one vertex at a time.
 
-This program does not use any JavaScript library.
+This program is written in vanilla JavaScript and has no dependencies.
 
 
 Usage
 -----
 
-The script is run by simply opening `index.htm` in any recent browser that supports HTML5 Canvas. 
+Start by simply opening `index.htm` in any recent browser with [HTML5 Canvas support](http://caniuse.com/#feat=canvas).
 
 The object `VoronoiSettings` in file `js/voronoi.js` contains some basic configuration options:
 - the number of source vertices, and

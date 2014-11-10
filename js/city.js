@@ -1,25 +1,20 @@
 
 (function (Voronoi) {
+	"use strict";
 	
 	/**
 	 * Voronoi city.
+	 * @param {CanvasRenderingContext2D} ctx - the canvas' drawing context
 	 * @param {Integer} width The width of the city.
 	 * @param {Integer} height The height of the city.
+	 * @param {Object} settings
 	 */
-	function City(ctx, width, height) {
+	function City(ctx, width, height, settings) {
 
-		/**
-		 * The canvas' drawing context.
-		 * @type {CanvasRenderingContext2D}
-		 */
 		this.ctx = ctx;
-
-		/**
-		 * The width and height of the city.
-		 * @type {Integer}
-		 */
 		this.width = width;
 		this.height = height;
+		this.settings = settings;
 
 		/**
 		 * The city's shops - i.e. the source vertices of the Voronoi diagram.
@@ -27,10 +22,10 @@
 		 */
 		this.shops = [];
 
-		var positions = [], minSpacing = VoronoiSettings.GRID_SPACING(), randX, randY;
+		var positions = [], minSpacing = this.settings.gridSpacing, randX, randY;
 
 		// Generate the city's shops.
-		for (var i = 0; i < VoronoiSettings.SHOPS_COUNT(); i += 1) {
+		for (var i = 0; i < this.settings.shopsCount; i += 1) {
 			do {
 				randX = Math.round(Math.random() * this.width / minSpacing) * minSpacing;
 				randY = Math.round(Math.random() * this.height / minSpacing) * minSpacing;
@@ -353,7 +348,7 @@
 						coeff = oppositeVertex.x < projX ? this.width : 0;
 						chosenFar = new Voronoi.Vertex(coeff, a2 * coeff + b2);
 					} else {
-						farY = oppositeVertex.y < midY ? this.height : 0;
+						var farY = oppositeVertex.y < midY ? this.height : 0;
 						chosenFar = new Voronoi.Vertex(b2, farY);
 					}
 
@@ -394,7 +389,7 @@
 	 */
 	City.prototype.drawShops = function () {
 		for (var i = 0; i < this.shops.length; i += 1) {
-			this.shops[i].draw(this.ctx, VoronoiSettings.VERTEX_SIZE());
+			this.shops[i].draw(this.ctx, this.settings.vertexSize);
 		}
 	};
 
@@ -482,7 +477,7 @@
 		this.drawShops(shop);
 
 		if (shop) {
-			shop.draw(this.ctx, VoronoiSettings.VERTEX_SIZE() * 2);
+			shop.draw(this.ctx, this.settings.vertexSize * 2);
 		}
 
 

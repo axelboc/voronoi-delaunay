@@ -1,72 +1,8 @@
 
-/**
- * Global settings.
- */
-var VoronoiSettings = (function () {
-
-	var _shopsCount = 180;
-	var _gridSpacing = 4;
+(function () {
+	"use strict";
 	
-	var _stepByStep = false;
-	var _showShops = true;
-	var _vertexSize = 2;
-	
-
-	/**
-	 * The number of shops in the city.
-	 * @type {Integer}
-	 */
-	var SHOPS_COUNT = function () {
-		return _shopsCount;
-	};
-
-	/**
-	 * The grid spacing, used to align the source vertices on a grid.
-	 * Minimum allowed value is 1.
-	 * @type {Integer}
-	 */
-	var GRID_SPACING = function () {
-		return _gridSpacing;
-	};
-
-
-	/**
-	 * Step-by-step mode, in which the Delaunay triangulation is built one vertex at a time.
-	 * @type {Boolean}
-	 */
-	var STEP_BY_STEP = function () {
-		return _stepByStep;
-	};
-
-	/**
-	 * Indicates whether to display the shops on the final Voronoi diagram.
-	 * @type {Boolean}
-	 */
-	var SHOW_SHOPS = function () {
-		return _showShops;
-	};
-
-	/**
-	 * The size of the vertices on the canvas.
-	 * @type {Integer}
-	 */
-	var VERTEX_SIZE = function () {
-		return _vertexSize;
-	};
-	
-	
-	return {
-		SHOPS_COUNT: SHOPS_COUNT,
-		GRID_SPACING: GRID_SPACING,
-		STEP_BY_STEP: STEP_BY_STEP,
-		SHOW_SHOPS: SHOW_SHOPS,
-		VERTEX_SIZE: VERTEX_SIZE
-	};
-
-})();
-
-
-(function (window, Voronoi) {
+	var settings = Voronoi.Settings.get();
 	
 	/**
 	 * Entry point.
@@ -84,12 +20,12 @@ var VoronoiSettings = (function () {
 		canvas.height = h;
 		
 		// Create a new City
-		var city = new Voronoi.City(ctx, w, h);
+		var city = new Voronoi.City(ctx, w, h, settings);
 		
-		if (!VoronoiSettings.STEP_BY_STEP()) {
+		if (!settings.stepByStep) {
 			// Compute and draw the Voronoi diagram
 			city.voronoi();
-			city.drawVoronoi(VoronoiSettings.SHOW_SHOPS());
+			city.drawVoronoi(settings.showShops);
 		} else {
 			// Start computing the Delaunay triangulation
 			city.initDelaunay(true);
@@ -104,7 +40,7 @@ var VoronoiSettings = (function () {
 					nextBtn.removeEventListener("click", nextFuntion);
 					
 					city.computeVoronoi();
-					city.drawVoronoi(VoronoiSettings.SHOW_SHOPS());
+					city.drawVoronoi(settings.showShops);
 				}
 			};
 			
@@ -113,4 +49,4 @@ var VoronoiSettings = (function () {
 		}
 	};
 
-}(window, window.Voronoi));
+}());

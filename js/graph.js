@@ -1,5 +1,6 @@
 
 (function (Voronoi) {
+	"use strict";
 	
 	// Keep count of the number of instances of each prototype in order to generate unique IDs
 	var verticesCount = 0;
