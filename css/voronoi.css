@@ -1,16 +1,57 @@
 
-body {
-	text-align: center;
+*,
+*:after,
+*:before {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
 }
 
-canvas {
-	border: 2px solid #000;
+html,
+body {
+	height: 100%;
+	line-height: 1.5;
+}
+
+body {
+	display: table;
+	border-collapse: collapse;
+	width: 100%;
+	margin: 0;
+	text-align: center;
+	font-family: Verdana,Geneva,sans-serif
+}
+
+.wrapper {
+	display: table-row;
+}
+
+.sidebar,
+.main {
+	display: table-cell;
+	vertical-align: top;
+}
+
+.sidebar {
+	position: relative;
+	width: 15%;
+	padding-top: 1.5em;
+	background-color: #eee;
+}
+
+.canvas {
+	display: block;
 }
 
 button {
 	font-size: 150%;
+	font-family: inherit;
 }
 
-.hidden {
-	display: none;
+.by {
+	position: absolute;
+	bottom: 1.5em;
+	left: 0;
+	width: 100%;
+	margin: 0;
 }

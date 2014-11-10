@@ -100,8 +100,8 @@ City.prototype.initDelaunay = function (draw) {
 	
 	if (draw) {
 		city.clearAndDrawDelaunayStep(ctx1);
-		city.clearAndDrawDelaunayStep(ctx2);
-		city.clearAndDrawDelaunayStep(ctx3);
+		//city.clearAndDrawDelaunayStep(ctx2);
+		//city.clearAndDrawDelaunayStep(ctx3);
 	}
 };
 
@@ -214,8 +214,8 @@ City.prototype.nextDelaunayStep = function (draw) {
 
 		if (draw) {
 			// Draw result of insertion in second canvas
-			this.clearAndDrawDelaunayStep(ctx2, s, null, cavityEdges, null);
-			this.clearAndDrawDelaunayStep(ctx3, s, null, null, newTriangles);
+			//this.clearAndDrawDelaunayStep(ctx2, s, null, cavityEdges, null);
+			//this.clearAndDrawDelaunayStep(ctx3, s, null, null, newTriangles);
 		}
 	}
 };
@@ -242,8 +242,8 @@ City.prototype.cleanUpDelaunay = function (draw) {
 	}
 	
 	if (draw) {
-		this.clearAndDrawDelaunayStep(ctx2);
-		this.clearAndDrawDelaunayStep(ctx3);
+		//this.clearAndDrawDelaunayStep(ctx2);
+		//this.clearAndDrawDelaunayStep(ctx3);
 	}
 	
 	// Delete the perimeter triangles
@@ -365,8 +365,8 @@ City.prototype.deleteTriangles = function (triangles) {
 	for (var tId in triangles) {
 		if (triangles.hasOwnProperty(tId)) {
 			var t = triangles[tId];
-			t.draw(ctx2, true);
-			t.draw(ctx3, true);
+			//t.draw(ctx2, true);
+			//t.draw(ctx3, true);
 			this.delaunayTriangles.splice(this.delaunayTriangles.indexOf(t), 1);
 		}
 	}
@@ -500,14 +500,14 @@ City.prototype.clearAndDrawVoronoi = function (showShops) {
 	city.drawVoronoi(ctx1);
 	
 	// Draw the Voronoi diagram on top of the Delaunay triangulation in the second canvas
-	city.clearCtx(ctx2);
-	city.drawShops(ctx2);
-	city.drawDelaunay(ctx2);
-	city.drawVoronoi(ctx2);
+	//city.clearCtx(ctx2);
+	//city.drawShops(ctx2);
+	//city.drawDelaunay(ctx2);
+	//city.drawVoronoi(ctx2);
 	
 	// Draw the Delaunay triangulation in the third canvas
-	city.clearCtx(ctx3);
-	city.drawShops(ctx3);
-	city.drawDelaunay(ctx3);
+	//city.clearCtx(ctx3);
+	//city.drawShops(ctx3);
+	//city.drawDelaunay(ctx3);
 };
 

@@ -4,7 +4,7 @@
  */
 var VoronoiSettings = (function () {
 
-	var _shopsCount = 80;
+	var _shopsCount = 180;
 	var _gridSpacing = 4;
 	
 	var _stepByStep = false;
@@ -86,13 +86,22 @@ var ctx1, ctx2, ctx3;
 (function () {
 
 	window.onload = function () {
-		var canvas1 = document.getElementById("voronoi1");
-		ctx1 = canvas1.getContext('2d');
-		ctx2 = document.getElementById("voronoi2").getContext('2d');
-		ctx3 = document.getElementById("voronoi3").getContext('2d');
+		// Get the dimensions of the main element, which wraps the canvas
+		var main = document.querySelector(".main");
+		var w = main.clientWidth;
+		var h = main.clientHeight;
+		
+		// Get the canvas and set its dimensions
+		var canvas = document.querySelector(".canvas");
+		canvas.width = w;
+		canvas.height = h;
+		
+		ctx1 = canvas.getContext('2d');
+		//ctx2 = document.getElementById("voronoi2").getContext('2d');
+		//ctx3 = document.getElementById("voronoi3").getContext('2d');
 		
 		// Instanciate a City object
-		city = new City(canvas1.width, canvas1.height);
+		city = new City(w, h);
 		
 		if (!VoronoiSettings.STEP_BY_STEP()) {
 			// Computing and draw the Voronoi diagram
