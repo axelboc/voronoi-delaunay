@@ -67,23 +67,9 @@ var VoronoiSettings = (function () {
 
 
 /**
- * The city instance.
- * @type {City}
- */
-var city;
-
-
-/**
- * The three canvas drawing contexts.
- * @type {Object}
- */
-var ctx1, ctx2, ctx3;
-
-
-/**
  * Entry point.
  */
-(function () {
+(function (window, Voronoi) {
 
 	window.onload = function () {
 		// Get the dimensions of the main element, which wraps the canvas
@@ -91,22 +77,19 @@ var ctx1, ctx2, ctx3;
 		var w = main.clientWidth;
 		var h = main.clientHeight;
 		
-		// Get the canvas and set its dimensions
+		// Get the canvas and its context, and set its dimensions
 		var canvas = document.querySelector(".canvas");
+		var ctx = canvas.getContext('2d');
 		canvas.width = w;
 		canvas.height = h;
 		
-		ctx1 = canvas.getContext('2d');
-		//ctx2 = document.getElementById("voronoi2").getContext('2d');
-		//ctx3 = document.getElementById("voronoi3").getContext('2d');
-		
-		// Instanciate a City object
-		city = new City(w, h);
+		// Create a new City
+		var city = new Voronoi.City(ctx, w, h);
 		
 		if (!VoronoiSettings.STEP_BY_STEP()) {
-			// Computing and draw the Voronoi diagram
+			// Compute and draw the Voronoi diagram
 			city.voronoi();
-			city.clearAndDrawVoronoi(VoronoiSettings.SHOW_SHOPS());
+			city.drawVoronoi(VoronoiSettings.SHOW_SHOPS());
 		} else {
 			// Start computing the Delaunay triangulation
 			city.initDelaunay(true);
@@ -121,7 +104,7 @@ var ctx1, ctx2, ctx3;
 					nextBtn.removeEventListener("click", nextFuntion);
 					
 					city.computeVoronoi();
-					city.clearAndDrawVoronoi(VoronoiSettings.SHOW_SHOPS());
+					city.drawVoronoi(VoronoiSettings.SHOW_SHOPS());
 				}
 			};
 			
@@ -130,5 +113,4 @@ var ctx1, ctx2, ctx3;
 		}
 	};
 
-})();
-
+}(window, window.Voronoi));
