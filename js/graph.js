@@ -24,8 +24,11 @@
 		this.id = "v" + verticesCount;
 	};
 
-	Vertex.prototype.draw = function (ctx, vertexSize) {
-		ctx.fillRect(this.x - vertexSize / 2, this.y - vertexSize / 2, vertexSize, vertexSize);
+	Vertex.prototype.draw = function (ctx, radius) {
+		ctx.beginPath();
+		ctx.arc(this.x, this.y, radius, 0, Math.PI * 2); 
+		ctx.closePath();
+		ctx.fill();
 	};
 
 

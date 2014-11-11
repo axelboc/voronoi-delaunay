@@ -4,33 +4,27 @@ Voronoi.Settings = (function (Voronoi) {
 	"use strict";
 	
 	var _settings = {
-		shopsCount: 400,
-		gridSpacing: 4,
+		shopsCount: 100,
+		gridSpacing: 5,
 		stepByStep: false,
-		showShops: true,
-		vertexSize: 2
+		voronoiEdges: {
+			colour: '#0B8770',
+			width: 1
+		},
+		shops: {
+			show: true,
+			radius: 3,
+			colour: '#DB4B23'
+		},
+		bgColour: '#fff'
 	};
 	
 	return {
 		
 		/**
 		 * Get the current settings.
-		 * If a category is provided, return only the settings for that category.
-		 * @param {String} category
 		 */
-		get: function (category) {
-			assert(typeof category === 'undefined' || typeof category === 'string' && category.length > 0,
-				   "if provided, argument 'category' must be a non-empty string");
-
-			// If a category is provided, return the settings for that category
-			if (category) {
-				assert(typeof _settings[category] !== 'undefined', 
-					   "settings category '" +  category + "' doesn't exist");
-
-				return _settings[category];
-			}
-
-			// Otherwise, return the whole settings object
+		get: function () {
 			return _settings;
 		}
 	

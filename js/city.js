@@ -380,7 +380,7 @@
 	 */
 	City.prototype.clear = function () {
 		// Clear by drawing a white rectangle over the city
-		this.ctx.fillStyle = '#ffffff';
+		this.ctx.fillStyle = this.settings.bgColour;
 		this.ctx.fillRect(0, 0, this.width, this.height);
 	};
 
@@ -389,7 +389,7 @@
 	 */
 	City.prototype.drawShops = function () {
 		for (var i = 0; i < this.shops.length; i += 1) {
-			this.shops[i].draw(this.ctx, this.settings.vertexSize);
+			this.shops[i].draw(this.ctx, this.settings.shops.radius);
 		}
 	};
 
@@ -414,13 +414,13 @@
 
 		// Draw the shops
 		if (showShops) {
-			this.ctx.fillStyle = '#ff3333';
+			this.ctx.fillStyle = this.settings.shops.colour;
 			this.drawShops();
 		}
 
 		// Draw the Voronoi diagram
-		this.ctx.strokeStyle = '#0000ff';
-		this.ctx.lineWidth = 1;
+		this.ctx.strokeStyle = this.settings.voronoiEdges.colour;
+		this.ctx.lineWidth = this.settings.voronoiEdges.width;
 		this.ctx.lineCap = 'round';
 
 		for (var i = 0; i < this.voronoiEdges.length; i += 1) {
@@ -477,7 +477,7 @@
 		this.drawShops(shop);
 
 		if (shop) {
-			shop.draw(this.ctx, this.settings.vertexSize * 2);
+			shop.draw(this.ctx, this.settings.shops.radius * 2);
 		}
 
 

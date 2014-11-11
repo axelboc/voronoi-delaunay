@@ -25,7 +25,7 @@
 		if (!settings.stepByStep) {
 			// Compute and draw the Voronoi diagram
 			city.voronoi();
-			city.drawVoronoi(settings.showShops);
+			city.drawVoronoi(settings.shops.show);
 		} else {
 			// Start computing the Delaunay triangulation
 			city.initDelaunay(true);
@@ -40,7 +40,7 @@
 					nextBtn.removeEventListener("click", nextFuntion);
 					
 					city.computeVoronoi();
-					city.drawVoronoi(settings.showShops);
+					city.drawVoronoi(settings.shops.show);
 				}
 			};
 			
