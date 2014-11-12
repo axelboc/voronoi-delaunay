@@ -1,5 +1,5 @@
 
-(function (Voronoi) {
+(function (w) {
 	"use strict";
 	
 	// Keep count of the number of instances of each prototype in order to generate unique IDs
@@ -152,8 +152,54 @@
 	
 	
 	// Add prototypes to `Voronoi` namespace in global context
-	Voronoi.Vertex = Vertex;
-	Voronoi.Edge = Edge;
-	Voronoi.Triangle = Triangle;
+	w.Vertex = Vertex;
+	w.Edge = Edge;
+	w.Triangle = Triangle;
+	
+	
+	/**
+	 * 2D scattering algorithms.
+	 */
+	w.Scatter = {
+		
+		/**
+		 * Uniform random scatter algorithm to scatter points on a plane.
+		 * @param {Integer} width - the width of the plane
+		 * @param {Integer} height - the height of the plane
+		 * @param {Integer} count - the number of points to scatter on the plane
+		 */
+		random: function (width, height, count) {
+			assert(typeof width === 'number' && width > 0 && width % 1 === 0, 
+				   "argument `width` must be an integer greater than 0");
+			assert(typeof height === 'number' && height > 0 && height % 1 === 0, 
+				   "argument `height` must be an integer greater than 0");
+			assert(typeof count === 'number' && count > 0 && count % 1 === 0, 
+				   "argument `count` must be an integer greater than 0");
+			
+			assert(count <= width * height, "too many points to scatter");
+			
+			var points = [],
+				grid = [], 
+				x, y;
+			
+			for (var i = 0; i < count; i += 1) {
+				// Generate a random position until one that isn't already occupied is found
+				do {
+					x = Math.round(Math.random() * width);
+					y = Math.round(Math.random() * height);
+				} while (grid[x] && grid[x][y]);
+				
+				// Create a new Vertex at the position that was found
+				points.push(new Vertex(x, y));
+				
+				// Mark the position as occupied
+				grid[x] = grid[x] || [];
+				grid[x][y] = true;
+			}
+			
+			return points;
+		}
+		
+	};
 
-}(window.Voronoi = window.Voronoi || {}));
+}(window));
