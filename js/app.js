@@ -4,10 +4,10 @@
 	
 	var settings = {
 		// Whether to compute the Voronoi diagram one step at a time or all at once
-		stepByStep: false,
+		stepByStep: true,
 		
 		// The number of seeds of the diagram
-		seedCount: 2000,
+		seedCount: 30,
 		
 		// The scattering algorithm to use to position the seeds on the plane (allowed: 'random')
 		scattering: 'random',
@@ -26,10 +26,22 @@
 				colour: '#db4b23'
 			},
 			
-			voronoiEdges: {
-				// The width and colour of the edges of the diagram on the canvas
+			voronoi: {
+				// Whether to show the diagram
+				show: true,
+				
+				// The width and colour of the lines of the diagram on the canvas
 				width: 1,
 				colour: '#0b8770'
+			},
+			
+			delaunay: {
+				// Whether to show the Delaunay triangulation 
+				show: true,
+				
+				// The width and colour of the lines of the delaunay triangulation
+				width: 1,
+				colour: '#3f3'
 			}
 		}
 	};

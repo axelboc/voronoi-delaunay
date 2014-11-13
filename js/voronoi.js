@@ -82,8 +82,6 @@ var Voronoi = (function () {
 
 		if (draw) {
 			this.clearAndDrawDelaunayStep();
-			//this.clearAndDrawDelaunayStep(ctx2);
-			//this.clearAndDrawDelaunayStep(ctx3);
 		}
 	};
 
@@ -398,13 +396,24 @@ var Voronoi = (function () {
 		}
 
 		// Draw the Voronoi diagram
-		this.ctx.strokeStyle = this.settings.canvas.voronoiEdges.colour;
-		this.ctx.lineWidth = this.settings.canvas.voronoiEdges.width;
+		this.ctx.strokeStyle = this.settings.canvas.voronoi.colour;
+		this.ctx.lineWidth = this.settings.canvas.voronoi.width;
 		this.ctx.lineCap = 'round';
 
 		for (var i = 0; i < this.voronoiEdges.length; i += 1) {
 			this.voronoiEdges[i].draw(this.ctx);
 		}
+
+		// Draw the Voronoi diagram on top of the Delaunay triangulation in the second canvas
+		//this.clear(ctx2);
+		//this.drawSeeds(ctx2);
+		//this.drawDelaunay(ctx2);
+		//this.drawVoronoi(ctx2);
+
+		// Draw the Delaunay triangulation in the third canvas
+		//this.clear(ctx3);
+		//this.drawSeeds(ctx3);
+		//this.drawDelaunay(ctx3);
 	};
 
 	/**
@@ -412,8 +421,8 @@ var Voronoi = (function () {
 	 * @param {Boolean} showSeeds true to draw the seeds in the first context.
 	 */
 	Voronoi.prototype.drawDelaunay = function (showSeeds) {
-		this.ctx.lineWidth = 1.0;
-		this.ctx.strokeStyle = '#666666';
+		this.ctx.lineWidth = this.settings.canvas.delaunay.width;
+		this.ctx.strokeStyle = this.settings.canvas.delaunay.colour;
 
 		this.drawTriangles(this.delaunayTriangles, false, true);
 	};
@@ -472,34 +481,6 @@ var Voronoi = (function () {
 		// Draw Delaunay triangles
 		this.drawDelaunay();
 	};
-
-	/**
-	 * For each context, clear then draw a representation of the Voronoi diagram of the city.
-	 * @param {Boolean} showSeeds true to draw the seeds in the first context.
-	 */
-	/*
-	Voronoi.prototype.redrawVoronoi = function (showSeeds) {
-		// Draw the Voronoi diagram in the first canvas
-		this.clear();
-		if (showSeeds) {
-			this.ctx.fillStyle = '#ff3333';
-			this.drawSeeds();
-		}
-		this.drawVoronoi();
-
-		// Draw the Voronoi diagram on top of the Delaunay triangulation in the second canvas
-		//this.clear(ctx2);
-		//this.drawSeeds(ctx2);
-		//this.drawDelaunay(ctx2);
-		//this.drawVoronoi(ctx2);
-
-		// Draw the Delaunay triangulation in the third canvas
-		//this.clear(ctx3);
-		//this.drawSeeds(ctx3);
-		//this.drawDelaunay(ctx3);
-	};
-	*/
-	
 	
 	return Voronoi;
 	
