@@ -2,8 +2,10 @@
 var Voronoi = (function () {
 	"use strict";
 	
+	var STATES = [, ''];
+	
 	/**
-	 * Voronoi diagram.
+	 * Voronoi diagram generator.
 	 * @param {CanvasRenderingContext2D} ctx - the drawing context
 	 * @param {Integer} width
 	 * @param {Integer} height
@@ -15,24 +17,49 @@ var Voronoi = (function () {
 		this.height = height;
 		this.settings = settings;
 		
-		// Generate the seeds
-		switch (settings.scattering) {
-			case 'random':
-				this.seeds = Scatter.random(width, height, settings.seedCount);
-				break;
+		// Initialise and run
+		this.init(false);
+
+		if (!this.settings.delaunay.stepByStep) {
+			this.generate();
+		}
+	};
+	
+	/**
+	 * Initialise or reset the generator.
+	 * To reset and regenerate the same diagram, pass `true` as argument.
+	 * @param {Boolean} keepScatter - whether to keep the previously scatterd seeds
+	 */
+	Voronoi.prototype.init = function (keepScatter) {
+		assert(typeof keepScatter === 'boolean', "argument `keepScatter` must be a boolean");
+		assert(!keepScatter || this.seeds && this.seeds.length > 0,
+			   "no scatter to keep");
+		
+		// Scatter the seeds, unless asked otherwise
+		if (!keepScatter) {
+			this.scatterSeeds();
 		}
 
-		// Variables used to compute the Delaunay triangulation.
+		// Initialise variables used to compute the Delaunay triangulation
 		this.delaunayTriangles = [];
 		this.delaunayComplete = false;
 		this.delaunayIndex = 0;
 
-		// Variables used to compute the Voronoi diagram.
+		// Initialise variables used to compute the Voronoi diagram
 		this.voronoiComplete = false;
 		this.voronoiEdges = [];
-
-		if (!settings.stepByStep) {
-			this.generate();
+	};
+	
+	/**
+	 * Scatter the seeds on the plane.
+	 */
+	Voronoi.prototype.scatterSeeds = function () {
+		switch (this.settings.seeds.scattering) {
+			case 'random':
+				this.seeds = Scatter.random(this.width, this.height, this.settings.seeds.count);
+				break;
+			default:
+				assert(false, "scattering not supported");
 		}
 	};
 	
@@ -357,7 +384,7 @@ var Voronoi = (function () {
 	 */
 	Voronoi.prototype.clear = function () {
 		// Clear by drawing a white rectangle over the city
-		this.ctx.fillStyle = this.settings.canvas.bgColour;
+		this.ctx.fillStyle = this.settings.bgColour;
 		this.ctx.fillRect(0, 0, this.width, this.height);
 	};
 
@@ -366,7 +393,7 @@ var Voronoi = (function () {
 	 */
 	Voronoi.prototype.drawSeeds = function () {
 		for (var i = 0; i < this.seeds.length; i += 1) {
-			this.seeds[i].draw(this.ctx, this.settings.canvas.seeds.radius);
+			this.seeds[i].draw(this.ctx, this.settings.seeds.radius);
 		}
 	};
 
@@ -391,13 +418,13 @@ var Voronoi = (function () {
 
 		// Draw the seeds
 		if (showSeeds) {
-			this.ctx.fillStyle = this.settings.canvas.seeds.colour;
+			this.ctx.fillStyle = this.settings.seeds.colour;
 			this.drawSeeds();
 		}
 
 		// Draw the Voronoi diagram
-		this.ctx.strokeStyle = this.settings.canvas.voronoi.colour;
-		this.ctx.lineWidth = this.settings.canvas.voronoi.width;
+		this.ctx.strokeStyle = this.settings.voronoi.colour;
+		this.ctx.lineWidth = this.settings.voronoi.width;
 		this.ctx.lineCap = 'round';
 
 		for (var i = 0; i < this.voronoiEdges.length; i += 1) {
@@ -421,8 +448,8 @@ var Voronoi = (function () {
 	 * @param {Boolean} showSeeds true to draw the seeds in the first context.
 	 */
 	Voronoi.prototype.drawDelaunay = function (showSeeds) {
-		this.ctx.lineWidth = this.settings.canvas.delaunay.width;
-		this.ctx.strokeStyle = this.settings.canvas.delaunay.colour;
+		this.ctx.lineWidth = this.settings.delaunay.width;
+		this.ctx.strokeStyle = this.settings.delaunay.colour;
 
 		this.drawTriangles(this.delaunayTriangles, false, true);
 	};
@@ -465,7 +492,7 @@ var Voronoi = (function () {
 		this.drawSeeds(shop);
 
 		if (shop) {
-			shop.draw(this.ctx, this.settings.canvas.seeds.radius * 2);
+			shop.draw(this.ctx, this.settings.seeds.radius * 2);
 		}
 
 

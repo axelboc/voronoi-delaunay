@@ -3,47 +3,46 @@
 	"use strict";
 	
 	var settings = {
-		// Whether to compute the Voronoi diagram one step at a time or all at once
-		stepByStep: true,
 		
-		// The number of seeds of the diagram
-		seedCount: 30,
+		// The canvas' background colour
+		bgColour: '#fff',
+
+		seeds: {
+			// Whether to show the seeds on the diagram
+			show: false,
+			
+			// The number of seeds of the diagram
+			count: 30,
 		
-		// The scattering algorithm to use to position the seeds on the plane (allowed: 'random')
-		scattering: 'random',
-		
-		// Customisation settings
-		canvas: {
-			// The canvas' background colour
-			bgColour: '#fff',
+			// The scattering algorithm to use to position the seeds on the plane (allowed: 'random')
+			scattering: 'random',
+
+			// The size and colour of the seeds on the canvas
+			radius: 3,
+			colour: '#db4b23'
+		},
+
+		voronoi: {
+			// Whether to show the diagram
+			show: true,
+
+			// The width and colour of the lines of the diagram on the canvas
+			width: 1,
+			colour: '#0b8770'
+		},
+
+		delaunay: {
+			// Whether to show the Delaunay triangulation on the canvas 
+			show: true,
 			
-			seeds: {
-				// Whether to show the seeds on the diagram
-				show: false,
-				
-				// The size and colour of the seeds on the canvas
-				radius: 3,
-				colour: '#db4b23'
-			},
-			
-			voronoi: {
-				// Whether to show the diagram
-				show: true,
-				
-				// The width and colour of the lines of the diagram on the canvas
-				width: 1,
-				colour: '#0b8770'
-			},
-			
-			delaunay: {
-				// Whether to show the Delaunay triangulation 
-				show: true,
-				
-				// The width and colour of the lines of the delaunay triangulation
-				width: 1,
-				colour: '#3f3'
-			}
+			// Whether to compute the triangulation one step at a time
+			stepByStep: true,
+
+			// The width and colour of the lines of the triangulation
+			width: 1,
+			colour: '#3f3'
 		}
+		
 	};
 	
 	/**
@@ -64,10 +63,10 @@
 		// Create a new Voronoi diagram
 		var voronoi = new Voronoi(ctx, w, h, settings);
 		
-		if (!settings.stepByStep) {
+		if (!settings.delaunay.stepByStep) {
 			// Compute and draw the Voronoi diagram
 			voronoi.generate();
-			voronoi.drawVoronoi(settings.canvas.seeds.show);
+			voronoi.drawVoronoi(settings.seeds.show);
 		} else {
 			// Start computing the Delaunay triangulation
 			voronoi.initDelaunay(true);
@@ -82,7 +81,7 @@
 					nextBtn.removeEventListener("click", nextFuntion);
 					
 					voronoi.computeVoronoi();
-					voronoi.drawVoronoi(settings.canvas.seeds.show);
+					voronoi.drawVoronoi(settings.seeds.show);
 				}
 			};
 			
