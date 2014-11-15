@@ -13,10 +13,38 @@
 <body>
 <div class="wrapper">
 	<div class="sidebar">
-		<button id="next_btn" type="button">Next</button>
+		<form id="js-form" autocomplete="off">
+			<fieldset class="fieldset">
+				<legend>Mode</legend>
+				<div>
+					<input type="radio" id="auto" name="mode" checked data-action="setMode" data-param="auto">
+					<label for="auto" data-action="setMode" data-param="auto">Automatic</label>
+				</div>
+				<div>
+					<input type="radio" id="manual" name="mode" data-action="setMode" data-param="manual">
+					<label for="manual" data-action="setMode" data-param="manual">Manual</label>
+				</div>
+			</fieldset>
+			<fieldset id="js-auto" class="fieldset">
+				<legend>Automatic</legend>
+				<div>
+					<input type="checkbox" id="interval">
+					<label for="interval">Control speed</label>
+					<input type="range" id="interval-range" step="100" value="0" min="0" max="500" disabled>
+				</div>
+				<button type="button" data-action="generate">Generate</button>
+				<button type="button" disabled>Reset</button>
+			</fieldset>
+			<fieldset id="js-manual" class="fieldset" disabled>
+				<legend>Manual</legend>
+				<button type="button">Next step</button>
+				<button type="button">Restart</button>
+				<button type="button">Start new</button>
+			</fieldset>
+		</form>
 		<p class="by">by <a href="https://github.com/axelboc/voronoi-delaunay" target="_blank">axelboc</a></p>
 	</div>
-	<main class="main">
+	<main id="js-main" class="main">
 		<canvas class="canvas" width="1000" height="500"></canvas>
 	</main>
 </div>

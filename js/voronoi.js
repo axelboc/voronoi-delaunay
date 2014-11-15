@@ -2,7 +2,9 @@
 var Voronoi = (function () {
 	"use strict";
 	
-	var STATES = [, ''];
+	var STATES = {
+		
+	};
 	
 	/**
 	 * Voronoi diagram generator.
@@ -16,13 +18,6 @@ var Voronoi = (function () {
 		this.width = width;
 		this.height = height;
 		this.settings = settings;
-		
-		// Initialise and run
-		this.init(false);
-
-		if (!this.settings.delaunay.stepByStep) {
-			this.generate();
-		}
 	};
 	
 	/**
@@ -218,12 +213,6 @@ var Voronoi = (function () {
 
 			// Delete the old cavity triangles
 			this.deleteTriangles(cavityTriangles);
-
-			if (draw) {
-				// Draw result of insertion in second canvas
-				//this.clearAndDrawDelaunayStep(ctx2, s, null, cavityEdges, null);
-				//this.clearAndDrawDelaunayStep(ctx3, s, null, null, newTriangles);
-			}
 		}
 	};
 
@@ -246,11 +235,6 @@ var Voronoi = (function () {
 					break;
 				}
 			}
-		}
-
-		if (draw) {
-			//this.clearAndDrawDelaunayStep(ctx2);
-			//this.clearAndDrawDelaunayStep(ctx3);
 		}
 
 		// Delete the perimeter triangles
@@ -378,6 +362,29 @@ var Voronoi = (function () {
 			}
 		}
 	};
+	
+	/**
+	 * Draw the Voronoi diagram, its seeds and its Delaunay triangulation. 
+	 */
+	Voronoi.prototype.draw = function () {
+		// Clear the canvas first
+		this.clear();
+		
+		// Draw the seeds
+		if (this.settings.seeds.show) {
+			this.drawSeeds();
+		}
+		
+		// Draw the triangulation
+		if (this.settings.delaunay.show) {
+			this.drawDelaunay();
+		}
+		
+		// Draw the diagram
+		if (this.settings.voronoi.show) {
+			this.drawVoronoi();
+		}
+	};
 
 	/**
 	 * Clear the canvas.
@@ -392,9 +399,21 @@ var Voronoi = (function () {
 	 * Draw the seeds of the diagram.
 	 */
 	Voronoi.prototype.drawSeeds = function () {
+		this.ctx.fillStyle = this.settings.seeds.colour;
 		for (var i = 0; i < this.seeds.length; i += 1) {
 			this.seeds[i].draw(this.ctx, this.settings.seeds.radius);
 		}
+	};
+
+	/**
+	 * Draw the Delaunay triangulation.
+	 * @param {Boolean} showSeeds true to draw the seeds in the first context.
+	 */
+	Voronoi.prototype.drawDelaunay = function (showSeeds) {
+		this.ctx.lineWidth = this.settings.delaunay.width;
+		this.ctx.strokeStyle = this.settings.delaunay.colour;
+
+		this.drawTriangles(this.delaunayTriangles, false, true);
 	};
 
 	/**
@@ -407,51 +426,6 @@ var Voronoi = (function () {
 		for (var i = 0; i < triangles.length; i += 1) {
 			 triangles[i].draw(this.ctx, fill, stroke);
 		}
-	};
-
-	/**
-	 * Draw the Voronoi diagram of the city.
-	 */
-	Voronoi.prototype.drawVoronoi = function (showSeeds) {
-		// Clear the canvas
-		this.clear();
-
-		// Draw the seeds
-		if (showSeeds) {
-			this.ctx.fillStyle = this.settings.seeds.colour;
-			this.drawSeeds();
-		}
-
-		// Draw the Voronoi diagram
-		this.ctx.strokeStyle = this.settings.voronoi.colour;
-		this.ctx.lineWidth = this.settings.voronoi.width;
-		this.ctx.lineCap = 'round';
-
-		for (var i = 0; i < this.voronoiEdges.length; i += 1) {
-			this.voronoiEdges[i].draw(this.ctx);
-		}
-
-		// Draw the Voronoi diagram on top of the Delaunay triangulation in the second canvas
-		//this.clear(ctx2);
-		//this.drawSeeds(ctx2);
-		//this.drawDelaunay(ctx2);
-		//this.drawVoronoi(ctx2);
-
-		// Draw the Delaunay triangulation in the third canvas
-		//this.clear(ctx3);
-		//this.drawSeeds(ctx3);
-		//this.drawDelaunay(ctx3);
-	};
-
-	/**
-	 * Draw the Delaunay triangulation.
-	 * @param {Boolean} showSeeds true to draw the seeds in the first context.
-	 */
-	Voronoi.prototype.drawDelaunay = function (showSeeds) {
-		this.ctx.lineWidth = this.settings.delaunay.width;
-		this.ctx.strokeStyle = this.settings.delaunay.colour;
-
-		this.drawTriangles(this.delaunayTriangles, false, true);
 	};
 
 	/**
@@ -507,6 +481,19 @@ var Voronoi = (function () {
 
 		// Draw Delaunay triangles
 		this.drawDelaunay();
+	};
+
+	/**
+	 * Draw the Voronoi diagram.
+	 */
+	Voronoi.prototype.drawVoronoi = function () {
+		this.ctx.strokeStyle = this.settings.voronoi.colour;
+		this.ctx.lineWidth = this.settings.voronoi.width;
+		this.ctx.lineCap = 'round';
+
+		for (var i = 0; i < this.voronoiEdges.length; i += 1) {
+			this.voronoiEdges[i].draw(this.ctx);
+		}
 	};
 	
 	return Voronoi;

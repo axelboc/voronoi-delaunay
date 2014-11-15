@@ -18,7 +18,6 @@ body {
 	border-collapse: collapse;
 	width: 100%;
 	margin: 0;
-	text-align: center;
 	font-family: Verdana,Geneva,sans-serif
 }
 
@@ -35,7 +34,7 @@ body {
 .sidebar {
 	position: relative;
 	width: 15%;
-	padding-top: 1.5em;
+	padding: 1.5em 1em 0;
 	background-color: #eee;
 }
 
@@ -45,9 +44,26 @@ body {
 	height: auto;
 }
 
+.fieldset {
+	font-size: 90%;
+	margin-bottom: 1em;
+}
+
+[disabled] {
+	pointer-events: none;
+}
+
+label,
+input,
 button {
-	font-size: 150%;
+	cursor: pointer;
+}
+
+button {
+	font-size: 120%;
 	font-family: inherit;
+	display: inline-block;
+	width: 100%;
 }
 
 .by {
@@ -56,4 +72,5 @@ button {
 	left: 0;
 	width: 100%;
 	margin: 0;
+	text-align: center;
 }

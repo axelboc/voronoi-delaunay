@@ -6,10 +6,13 @@
 		
 		// The canvas' background colour
 		bgColour: '#fff',
+		
+		// The application mode ('auto' or 'manual')
+		mode: 'auto',
 
 		seeds: {
 			// Whether to show the seeds on the diagram
-			show: false,
+			show: true,
 			
 			// The number of seeds of the diagram
 			count: 30,
@@ -27,16 +30,13 @@
 			show: true,
 
 			// The width and colour of the lines of the diagram on the canvas
-			width: 1,
+			width: 2,
 			colour: '#0b8770'
 		},
 
 		delaunay: {
 			// Whether to show the Delaunay triangulation on the canvas 
-			show: true,
-			
-			// Whether to compute the triangulation one step at a time
-			stepByStep: true,
+			show: false,
 
 			// The width and colour of the lines of the triangulation
 			width: 1,
@@ -45,28 +45,91 @@
 		
 	};
 	
+	var AppController = (function () {
+		
+		var voronoi;
+		var modeFieldsets = {};
+		
+		return {
+			
+			/**
+			 * Initialise the app.
+			 */
+			init: function () {
+				// Get the dimensions of the main element, which wraps the canvas
+				var main = document.getElementById("js-main");
+				var w = main.clientWidth;
+				var h = main.clientHeight;
+
+				// Get the canvas and its context, and set its dimensions
+				var canvas = document.querySelector(".canvas");
+				var ctx = canvas.getContext('2d');
+				canvas.width = w;
+				canvas.height = h;
+
+				// Create a new Voronoi diagram
+				voronoi = new Voronoi(ctx, w, h, settings);
+
+				// Event delegation
+				var form = document.getElementById("js-form");
+				form.addEventListener("click", function (evt) {
+					var elem = evt.target;
+
+					// If an action is set on the element...
+					if (elem.dataset.action) {
+						// Get the AppController's method that corresponds to the action 
+						var method = AppController[elem.dataset.action];
+						assert(typeof method === 'function', "unhandled action");
+
+						// Call the action's method; if a parameter is provided, pass it as argument 
+						method(elem.dataset.param);
+					}
+				});
+			},
+			
+			/**
+			 * Generate the diagram (automatic mode)
+			 */
+			generate: function () {
+				voronoi.init(false);
+				voronoi.generate();
+				voronoi.draw();
+			},
+		
+			setMode: function (mode) {
+				assert(typeof mode === 'string', "argument `mode` must be a string");
+				var auto = document.getElementById('js-auto');
+				var manual = document.getElementById('js-manual');
+
+				switch (mode) {
+					case 'auto':
+						auto.removeAttribute('disabled');
+						manual.setAttribute('disabled', 'disabled');
+						break;
+					case 'manual':
+						manual.removeAttribute('disabled');
+						auto.setAttribute('disabled', 'disabled');
+						break;
+					default:
+						assert(false, "argument `mode` must be one of (auto|manual)");
+				}
+				
+				// Save new setting
+				settings.mode = mode;
+			}
+			
+		};
+		
+	}());
+	
 	/**
-	 * Entry point.
+	 * Initialise the app when the DOM is ready.
 	 */
-	window.onload = function () {
-		// Get the dimensions of the main element, which wraps the canvas
-		var main = document.querySelector(".main");
-		var w = main.clientWidth;
-		var h = main.clientHeight;
+	document.addEventListener('DOMContentLoaded', function () {
+		AppController.init();
 		
-		// Get the canvas and its context, and set its dimensions
-		var canvas = document.querySelector(".canvas");
-		var ctx = canvas.getContext('2d');
-		canvas.width = w;
-		canvas.height = h;
 		
-		// Create a new Voronoi diagram
-		var voronoi = new Voronoi(ctx, w, h, settings);
-		
-		if (!settings.delaunay.stepByStep) {
-			// Compute and draw the Voronoi diagram
-			voronoi.generate();
-			voronoi.drawVoronoi(settings.seeds.show);
+		/*if (settings.mode === 'auto') {
 		} else {
 			// Start computing the Delaunay triangulation
 			voronoi.initDelaunay(true);
@@ -87,7 +150,7 @@
 			
 			nextBtn.classList.remove("hidden");
 			nextBtn.addEventListener("click", nextFuntion, false);
-		}
-	};
+		}*/
+	});
 
 }());
