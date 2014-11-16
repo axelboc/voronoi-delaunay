@@ -66,6 +66,10 @@ button {
 	width: 100%;
 }
 
+.mb1 {
+	margin-bottom: 1em;
+}
+
 .by {
 	position: absolute;
 	bottom: 1.5em;

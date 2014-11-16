@@ -4,6 +4,8 @@
 	
 	var settings = {
 		
+		generateOnLoad: true,
+		
 		// The canvas' background colour
 		bgColour: '#fff',
 		
@@ -15,7 +17,7 @@
 			show: true,
 			
 			// The number of seeds of the diagram
-			count: 30,
+			count: 500,
 		
 			// The scattering algorithm to use to position the seeds on the plane (allowed: 'random')
 			scattering: 'random',
@@ -36,7 +38,7 @@
 
 		delaunay: {
 			// Whether to show the Delaunay triangulation on the canvas 
-			show: false,
+			show: true,
 
 			// The width and colour of the lines of the triangulation
 			width: 1,
@@ -88,27 +90,72 @@
 			},
 			
 			/**
-			 * Generate the diagram (automatic mode)
+			 * Generate a new diagram
 			 */
 			generate: function () {
+				// Initialise and scatter the seeds
 				voronoi.init(false);
-				voronoi.generate();
+				
+				// In 'auto' mode, generate the diagram right away
+				if (settings.mode === 'auto') {
+					voronoi.generate();
+				} else {
+					var next = document.getElementById('js-next');
+					next.removeAttribute('disabled');
+				}
+				
+				// Draw
 				voronoi.draw();
 			},
-		
+			
+			/**
+			 * Perform the next step of computation of the diagram.
+			 */
+			nextStep: function () {
+				if (voronoi.delaunayTriangles.length === 0) {
+					voronoi.initDelaunay();
+				} else if (!voronoi.delaunayComplete) {
+					voronoi.nextDelaunayStep();
+				} else if (!voronoi.voronoiComplete) {
+					voronoi.computeVoronoi();
+					
+					var next = document.getElementById('js-next');
+					next.setAttribute('disabled', 'disabled');
+				}
+				
+				voronoi.draw();
+			},
+			
+			/**
+			 * Reset the diagram, but keep the seeds.
+			 */
+			reset: function () {
+				voronoi.init(true);
+				voronoi.draw();
+				
+				var next = document.getElementById('js-next');
+				next.removeAttribute('disabled');
+			},
+			
+			/**
+			 * Set the app mode to 'auto' or 'manual'.
+			 * @param {String} mode
+			 */
 			setMode: function (mode) {
 				assert(typeof mode === 'string', "argument `mode` must be a string");
-				var auto = document.getElementById('js-auto');
-				var manual = document.getElementById('js-manual');
+				var next = document.getElementById('js-next');
+				var reset = document.getElementById('js-reset');
 
 				switch (mode) {
 					case 'auto':
-						auto.removeAttribute('disabled');
-						manual.setAttribute('disabled', 'disabled');
+						next.setAttribute('disabled', 'disabled');
+						reset.setAttribute('disabled', 'disabled');
 						break;
 					case 'manual':
-						manual.removeAttribute('disabled');
-						auto.setAttribute('disabled', 'disabled');
+						if (!voronoi.voronoiComplete) { 
+							next.removeAttribute('disabled');
+						}
+						reset.removeAttribute('disabled');
 						break;
 					default:
 						assert(false, "argument `mode` must be one of (auto|manual)");
@@ -128,29 +175,10 @@
 	document.addEventListener('DOMContentLoaded', function () {
 		AppController.init();
 		
-		
-		/*if (settings.mode === 'auto') {
-		} else {
-			// Start computing the Delaunay triangulation
-			voronoi.initDelaunay(true);
-			
-			// Implement 'Next' button's behaviour
-			var nextBtn = document.getElementById("next_btn");
-			var nextFuntion = function () {
-				if (!voronoi.delaunayComplete) {
-					voronoi.nextDelaunayStep(true);
-				} else if (!voronoi.voronoiComplete) {
-					nextBtn.classList.add("hidden");
-					nextBtn.removeEventListener("click", nextFuntion);
-					
-					voronoi.computeVoronoi();
-					voronoi.drawVoronoi(settings.seeds.show);
-				}
-			};
-			
-			nextBtn.classList.remove("hidden");
-			nextBtn.addEventListener("click", nextFuntion, false);
-		}*/
+		// Optionally, generate a new diagram right away
+		if (settings.generateOnLoad) {
+			AppController.generate();
+		}
 	});
 
 }());

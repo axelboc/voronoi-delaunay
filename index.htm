@@ -20,26 +20,13 @@
 					<input type="radio" id="auto" name="mode" checked data-action="setMode" data-param="auto">
 					<label for="auto" data-action="setMode" data-param="auto">Automatic</label>
 				</div>
-				<div>
+				<div class="mb1">
 					<input type="radio" id="manual" name="mode" data-action="setMode" data-param="manual">
 					<label for="manual" data-action="setMode" data-param="manual">Manual</label>
 				</div>
-			</fieldset>
-			<fieldset id="js-auto" class="fieldset">
-				<legend>Automatic</legend>
-				<div>
-					<input type="checkbox" id="interval">
-					<label for="interval">Control speed</label>
-					<input type="range" id="interval-range" step="100" value="0" min="0" max="500" disabled>
-				</div>
-				<button type="button" data-action="generate">Generate</button>
-				<button type="button" disabled>Reset</button>
-			</fieldset>
-			<fieldset id="js-manual" class="fieldset" disabled>
-				<legend>Manual</legend>
-				<button type="button">Next step</button>
-				<button type="button">Restart</button>
-				<button type="button">Start new</button>
+				<button type="button" class="mb1" data-action="generate">Generate</button>
+				<button id="js-next" type="button" data-action="nextStep" disabled>Next step</button>
+				<button id="js-reset" type="button" data-action="reset" disabled>Reset</button>
 			</fieldset>
 		</form>
 		<p class="by">by <a href="https://github.com/axelboc/voronoi-delaunay" target="_blank">axelboc</a></p>

@@ -77,7 +77,7 @@ var Voronoi = (function () {
 	/**
 	 * Prepare for the computation of the Delaunay triangulation with the Bowyer-Watson algorithm.
 	 */
-	Voronoi.prototype.initDelaunay = function (draw) {
+	Voronoi.prototype.initDelaunay = function () {
 		// Create the seed triangle that surrounds all of the seeds
 		var v1 = new Vertex(-this.width * 4, -this.height * 4);
 		var v2 = new Vertex(this.width * 10, -this.height * 4);
@@ -101,10 +101,6 @@ var Voronoi = (function () {
 		this.delaunayTriangles.push(initialTriangle);
 		// Push the vertices of the initial triangle to the end of the array of the seeds
 		this.seeds = this.seeds.concat(initialTriangle.vertices);
-
-		if (draw) {
-			this.clearAndDrawDelaunayStep();
-		}
 	};
 
 	/**
@@ -219,7 +215,7 @@ var Voronoi = (function () {
 	/**
 	 * Clean-up the Delaunay triangulation by removing the initial triangle as well as the perimeter triangles.
 	 */
-	Voronoi.prototype.cleanUpDelaunay = function (draw) {
+	Voronoi.prototype.cleanUpDelaunay = function () {
 		this.delaunayComplete = true;
 
 		// Find and remove the triangles on the perimeter of the triangulation
@@ -242,10 +238,6 @@ var Voronoi = (function () {
 
 		// Remove the initial vertices
 		this.seeds.splice(this.seeds.length - 3, 3);
-
-		if (draw) {
-			this.clearAndDrawDelaunayStep();
-		}
 	};
 
 	/**
