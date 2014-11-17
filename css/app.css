@@ -36,6 +36,7 @@ body {
 	width: 15%;
 	padding: 1.5em 1em 0;
 	background-color: #eee;
+	font-size: 90%;
 }
 
 .canvas {
@@ -44,13 +45,22 @@ body {
 	height: auto;
 }
 
-.fieldset {
-	font-size: 90%;
+fieldset,
+.mb1 {
 	margin-bottom: 1em;
 }
 
 [disabled] {
 	pointer-events: none;
+}
+
+fieldset[disabled] {
+	opacity: .7;
+}
+
+input[type="radio"]:focus,
+input[type="checkbox"]:focus {
+	outline: 1px dashed #555;
 }
 
 label,
@@ -59,15 +69,15 @@ button {
 	cursor: pointer;
 }
 
+input[type="number"] {
+	cursor: text;
+}
+
 button {
 	font-size: 120%;
 	font-family: inherit;
 	display: inline-block;
 	width: 100%;
-}
-
-.mb1 {
-	margin-bottom: 1em;
 }
 
 .by {

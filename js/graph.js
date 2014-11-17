@@ -166,23 +166,23 @@
 		 * Uniform random scatter algorithm to scatter points on a plane.
 		 * @param {Integer} width - the width of the plane
 		 * @param {Integer} height - the height of the plane
-		 * @param {Integer} count - the number of points to scatter on the plane
+		 * @param {Integer} size - the number of points to scatter on the plane
 		 */
-		random: function (width, height, count) {
+		random: function (width, height, size) {
 			assert(typeof width === 'number' && width > 0 && width % 1 === 0, 
 				   "argument `width` must be an integer greater than 0");
 			assert(typeof height === 'number' && height > 0 && height % 1 === 0, 
 				   "argument `height` must be an integer greater than 0");
-			assert(typeof count === 'number' && count > 0 && count % 1 === 0, 
-				   "argument `count` must be an integer greater than 0");
+			assert(typeof size === 'number' && size > 0 && size % 1 === 0, 
+				   "argument `size` must be an integer greater than 0");
 			
-			assert(count <= width * height, "too many points to scatter");
+			assert(size <= width * height, "too many points to scatter");
 			
 			var points = [],
 				grid = [], 
 				x, y;
 			
-			for (var i = 0; i < count; i += 1) {
+			for (var i = 0; i < size; i += 1) {
 				// Generate a random position until one that isn't already occupied is found
 				do {
 					x = Math.round(Math.random() * width);

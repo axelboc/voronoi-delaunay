@@ -49,9 +49,11 @@ var Voronoi = (function () {
 	 * Scatter the seeds on the plane.
 	 */
 	Voronoi.prototype.scatterSeeds = function () {
+		assert(this.settings.size > 0, "`settings.size` must be greater than 0");
+		
 		switch (this.settings.seeds.scattering) {
 			case 'random':
-				this.seeds = Scatter.random(this.width, this.height, this.settings.seeds.count);
+				this.seeds = Scatter.random(this.width, this.height, this.settings.size);
 				break;
 			default:
 				assert(false, "scattering not supported");
@@ -359,21 +361,23 @@ var Voronoi = (function () {
 	 * Draw the Voronoi diagram, its seeds and its Delaunay triangulation. 
 	 */
 	Voronoi.prototype.draw = function () {
+		var isManual = this.settings.mode === 'manual';
+		
 		// Clear the canvas first
 		this.clear();
 		
 		// Draw the seeds
-		if (this.settings.seeds.show) {
+		if (isManual || this.settings.seeds.show) {
 			this.drawSeeds();
 		}
 		
 		// Draw the triangulation
-		if (this.settings.delaunay.show) {
+		if (isManual || this.settings.delaunay.show) {
 			this.drawDelaunay();
 		}
 		
 		// Draw the diagram
-		if (this.settings.voronoi.show) {
+		if (isManual || this.settings.voronoi.show) {
 			this.drawVoronoi();
 		}
 	};
