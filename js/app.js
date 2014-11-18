@@ -1,7 +1,4 @@
 
-// TODO: fill form on page load according to default settings below
-// TODO: fix manual mode (draw cavity, etc.), add settings to skip some drawing steps
-// TODO: cross-browser testing
 (function () {
 	"use strict";
 	
@@ -120,6 +117,9 @@
 				} else {
 					var next = document.getElementById('js-next');
 					next.removeAttribute('disabled');
+				
+					var showFieldset = document.getElementById('js-show');
+					showFieldset.setAttribute('disabled', 'disabled');
 				}
 				
 				// Draw
@@ -139,9 +139,11 @@
 					
 					// Disable the next button once the diagram has been computed
 					this.setAttribute('disabled', 'disabled');
+					
+					var showFieldset = document.getElementById('js-show');
+					showFieldset.removeAttribute('disabled');
 				}
 				
-				// Draw
 				voronoi.draw();
 			},
 			
@@ -155,6 +157,9 @@
 				// Enable the next button
 				var next = document.getElementById('js-next');
 				next.removeAttribute('disabled');
+				
+				var showFieldset = document.getElementById('js-show');
+				showFieldset.setAttribute('disabled', 'disabled');
 			},
 			
 			/**
@@ -166,6 +171,9 @@
 				var nextBtn = document.getElementById('js-next');
 				var resetBtn = document.getElementById('js-reset');
 				var showFieldset = document.getElementById('js-show');
+				
+				// Save new setting
+				settings.mode = mode;
 
 				switch (mode) {
 					case 'auto':
@@ -176,23 +184,16 @@
 					case 'manual':
 						if (!voronoi.voronoiComplete) { 
 							nextBtn.removeAttribute('disabled');
+							showFieldset.setAttribute('disabled', 'disabled');
 						}
 						resetBtn.removeAttribute('disabled');
-						showFieldset.setAttribute('disabled', 'disabled');
 						break;
 					default:
 						assert(false, "argument `mode` must be one of (auto|manual)");
 				}
-				
-				// Save new setting
-				settings.mode = mode;
-				
-				// Draw
-				voronoi.draw();
 			},
 			
 			setSize: function () {
-				console.log(this, this.value);
 				var size = parseInt(this.value, 10);
 				if (!isNaN(size)) {
 					settings.size = size;

@@ -39,6 +39,7 @@ var Voronoi = (function () {
 		this.delaunayTriangles = [];
 		this.delaunayComplete = false;
 		this.delaunayIndex = 0;
+		this.delaunayCavityTriangles = [];
 
 		// Initialise variables used to compute the Voronoi diagram
 		this.voronoiComplete = false;
@@ -80,65 +81,67 @@ var Voronoi = (function () {
 	 * Prepare for the computation of the Delaunay triangulation with the Bowyer-Watson algorithm.
 	 */
 	Voronoi.prototype.initDelaunay = function () {
-		// Create the seed triangle that surrounds all of the seeds
+		// Create the initial triangle that surrounds all of the seeds
+		// Create the three vertices
 		var v1 = new Vertex(-this.width * 4, -this.height * 4);
 		var v2 = new Vertex(this.width * 10, -this.height * 4);
 		var v3 = new Vertex(-this.width * 4, this.height * 10);
-
+		
+		// Store the vertices
 		this.initialVertices = [];
 		this.initialVertices[v1.id] = v1;
 		this.initialVertices[v2.id] = v2;
 		this.initialVertices[v3.id] = v3;
-
+		
+		// Link the vertices together
 		var e1 = new Edge(v1, v2);
 		var e2 = new Edge(v2, v3);
 		var e3 = new Edge(v3, v1);
-
+		
+		// Create the triangle
 		var initialTriangle = new Triangle(
 			[v1, v2, v3],
 			[e1, e2, e3],
 			[null, null, null]
 		);
 
+		// Store the triangle
 		this.delaunayTriangles.push(initialTriangle);
-		// Push the vertices of the initial triangle to the end of the array of the seeds
+		
+		// Add the vertices of the initial triangle to the seeds array
 		this.seeds = this.seeds.concat(initialTriangle.vertices);
 	};
 
 	/**
 	 * Insert a new vertex in the Delaunay triangulation.
 	 */
-	Voronoi.prototype.nextDelaunayStep = function (draw) {
+	Voronoi.prototype.nextDelaunayStep = function () {
 		if (this.delaunayIndex >= this.seeds.length - 3) {
-			this.cleanUpDelaunay(draw);
+			this.cleanUpDelaunay();
 		} else {
-			var s = this.seeds[this.delaunayIndex];
+			this.currentSeed = this.seeds[this.delaunayIndex];
 			this.delaunayIndex += 1;
 
-			var cavityTriangles = {};
+			this.cavityTriangles = {};
 
-			// Find the triangles that contain s in their circumscribing circle
+			// Find the triangles that contain the current seed in their circumscribing circle
 			for (var i = 0; i < this.delaunayTriangles.length; i += 1) {
 				var t = this.delaunayTriangles[i];
-				if (t.circumcircleContains(s)) {
-					cavityTriangles[t.id] = t;
+				if (t.circumcircleContains(this.currentSeed)) {
+					this.cavityTriangles[t.id] = t;
 				}
-			}
-
-			if (draw) {
-				// Draw triangulation before insertion, showing the triangles to be deleted
-				this.clearAndDrawDelaunayStep(s, cavityTriangles, null, null);
 			}
 
 
 			/* Insert the shop in the triangulation */
 
 			var newEdges = {}, newEdgesToNewTriangles = {};
-			var newTriangles = [], cavityEdges = [];
+			this.newTriangles = [];
+			this.cavityEdges = [];
 
-			for (var tId in cavityTriangles) {
-				if (cavityTriangles.hasOwnProperty(tId)) {
-					var t = cavityTriangles[tId];
+			for (var tId in this.cavityTriangles) {
+				if (this.cavityTriangles.hasOwnProperty(tId)) {
+					var t = this.cavityTriangles[tId];
 
 					// Loop through the edges of the old triangle
 					for (var i = 0; i < 3; i += 1) {
@@ -146,8 +149,8 @@ var Voronoi = (function () {
 						var neighbour = t.getNeighbour(e);
 
 						// If the neighbour is null or not a cavity triangle itself, create a new triangle using the shared edge
-						if (neighbour === null || !cavityTriangles[neighbour.id]) {
-							cavityEdges.push(e);
+						if (neighbour === null || !this.cavityTriangles[neighbour.id]) {
+							this.cavityEdges.push(e);
 
 							/* Make sure we don't create edges that already exist */
 
@@ -157,18 +160,18 @@ var Voronoi = (function () {
 
 							if (!sToV1) {
 								sToV1Flag = true;
-								sToV1 = new Edge(s, e.v1);
+								sToV1 = new Edge(this.currentSeed, e.v1);
 								newEdges[e.v1.id] = sToV1;
 							}
 
 							if (!v2ToS) {
 								v2ToSFlag = true;
-								v2ToS = new Edge(e.v2, s);
+								v2ToS = new Edge(e.v2, this.currentSeed);
 								newEdges[e.v2.id] = v2ToS;
 							}
 
 							// Create the new triangle
-							var newT = new Triangle([s, e.v1, e.v2], [sToV1, e, v2ToS], [null, neighbour, null]);
+							var newT = new Triangle([this.currentSeed, e.v1, e.v2], [sToV1, e, v2ToS], [null, neighbour, null]);
 
 							// Set new triangle as neighbour of the neighbour triangle
 							if (neighbour !== null) {
@@ -202,7 +205,7 @@ var Voronoi = (function () {
 
 
 							// Save the new triangle
-							newTriangles.push(newT);
+							this.newTriangles.push(newT);
 							this.delaunayTriangles.push(newT);
 						}
 					}
@@ -210,7 +213,7 @@ var Voronoi = (function () {
 			}
 
 			// Delete the old cavity triangles
-			this.deleteTriangles(cavityTriangles);
+			this.deleteTriangles(this.cavityTriangles);
 		}
 	};
 
@@ -361,24 +364,29 @@ var Voronoi = (function () {
 	 * Draw the Voronoi diagram, its seeds and its Delaunay triangulation. 
 	 */
 	Voronoi.prototype.draw = function () {
-		var isManual = this.settings.mode === 'manual';
-		
-		// Clear the canvas first
+		// Clear the canvas
 		this.clear();
 		
-		// Draw the seeds
-		if (isManual || this.settings.seeds.show) {
-			this.drawSeeds();
-		}
-		
-		// Draw the triangulation
-		if (isManual || this.settings.delaunay.show) {
-			this.drawDelaunay();
-		}
-		
-		// Draw the diagram
-		if (isManual || this.settings.voronoi.show) {
-			this.drawVoronoi();
+		// In `auto` mode or if the Voronoi diagram has been computed, draw according to the visibility settings
+		if (this.settings.mode === 'auto' || this.voronoiComplete) {
+			// Draw the seeds
+			if (this.settings.seeds.show) {
+				this.drawSeeds();
+			}
+
+			// Draw the triangulation
+			if (this.settings.delaunay.show) {
+				this.drawDelaunay();
+			}
+
+			// Draw the diagram
+			if (this.settings.voronoi.show) {
+				this.drawVoronoi();
+			}
+			
+		// In `manual` mode, draw the current Delaunay step
+		} else {
+			this.drawDelaunayStep();
 		}
 	};
 
@@ -425,53 +433,49 @@ var Voronoi = (function () {
 	};
 
 	/**
-	 * Clear the context and draw the current step of the creation of the Delaunay triangulation.
-	 * @param {Vertex} shop A vertex that is to be drawn twice as big than the others.
-	 * @param {Array} cavityTriangles The triangles that make up the current insertion cavity.
-	 * @param {Array} cavityEdges The edges that form the perimeter of the current insertion cavity.
-	 * @param {Array} newTriangles The new triangles that have been inserted into the triangulation.
+	 * Draw the current step in the creation of the Delaunay triangulation.
 	 */
-	Voronoi.prototype.clearAndDrawDelaunayStep = function (shop, cavityTriangles, cavityEdges, newTriangles) {
-		// Clear the context by drawing a white rectangle
+	Voronoi.prototype.drawDelaunayStep = function () {
+		// Clear the canvas
 		this.clear();
-
+		
 		// Draw old triangles
-		if (cavityTriangles) {
+		if (this.cavityTriangles) {
 			this.ctx.lineWidth = 3.0;
 			this.ctx.strokeStyle = '#00ff00';
 			this.ctx.fillStyle = '#ffcccc';
-			for (var tId in cavityTriangles){
-				if (cavityTriangles.hasOwnProperty(tId)) {
-					cavityTriangles[tId].draw(this.ctx, true, true);
+			for (var tId in this.cavityTriangles){
+				if (this.cavityTriangles.hasOwnProperty(tId)) {
+					this.cavityTriangles[tId].draw(this.ctx, true, true);
 				}
 			}
 		}
-
+		
 		// Draw new triangles
-		if (newTriangles) {
+		if (this.newTriangles) {
 			this.ctx.lineWidth = 3.0;
 			this.ctx.strokeStyle = '#cccc00';
 			this.ctx.fillStyle = '#ccffcc';
-			for (var i = 0; i < newTriangles.length; i++){
-				newTriangles[i].draw(this.ctx, true, true);
+			for (var i = 0; i < this.newTriangles.length; i++){
+				this.newTriangles[i].draw(this.ctx, true, true);
 			}
 		}
 
 		// Draw seeds
-		this.ctx.fillStyle = '#ff3333';
-		this.drawSeeds(shop);
+		this.drawSeeds();
 
-		if (shop) {
-			shop.draw(this.ctx, this.settings.seeds.radius * 2);
+		// Draw the current seed bigger
+		if (this.currentSeed) {
+			this.currentSeed.draw(this.ctx, this.settings.seeds.radius * 2);
 		}
 
 
 		// Draw cavity edges
-		if (cavityEdges) {
-			this.this.ctx.lineWidth = 3.0;
+		if (this.cavityEdges) {
+			this.ctx.lineWidth = 3.0;
 			this.ctx.strokeStyle = "#0000ff";
-			for (var i = 0; i < cavityEdges.length; i++){
-				cavityEdges[i].draw(this.ctx);
+			for (var i = 0; i < this.cavityEdges.length; i++){
+				this.cavityEdges[i].draw(this.ctx);
 			}
 		}
 
