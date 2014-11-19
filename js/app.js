@@ -114,6 +114,8 @@
 				// In 'auto' mode, generate the diagram right away
 				if (settings.mode === 'auto') {
 					voronoi.generate();
+					
+				// In 'manual' mode, enable the next button and disable the visibility controls
 				} else {
 					var next = document.getElementById('js-next');
 					next.removeAttribute('disabled');
@@ -131,9 +133,14 @@
 			 */
 			nextStep: function () {
 				if (voronoi.delaunayTriangles.length === 0) {
+					// Initialise the triangulation, and run the next step right away
 					voronoi.initDelaunay();
+					voronoi.nextDelaunayStep();
+					console.log('test');
+					
 				} else if (!voronoi.delaunayComplete) {
 					voronoi.nextDelaunayStep();
+					
 				} else if (!voronoi.voronoiComplete) {
 					voronoi.computeVoronoi();
 					
@@ -144,6 +151,7 @@
 					showFieldset.removeAttribute('disabled');
 				}
 				
+				// Draw
 				voronoi.draw();
 			},
 			

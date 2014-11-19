@@ -2,8 +2,9 @@
 var Voronoi = (function () {
 	"use strict";
 	
-	var STATES = {
-		
+	var DELAUNAY_STATES = {
+		FIND_CAVITY_TRIANGLES: 0,
+		INSERT_SEED: 1,
 	};
 	
 	/**
@@ -43,6 +44,7 @@ var Voronoi = (function () {
 		this.cavityEdges = [];
 		this.newTriangles = [];
 		this.currentSeed = null;
+		this.delaunayState = DELAUNAY_STATES.FIND_CAVITY_TRIANGLES;
 
 		// Initialise variables used to compute the Voronoi diagram
 		this.voronoiComplete = false;
@@ -68,6 +70,8 @@ var Voronoi = (function () {
 	 * Generate the diagram.
 	 */
 	Voronoi.prototype.generate = function () {
+		assert(this.seeds && this.seeds.length > 0, "seeds not scattered");
+		
 		// Prepare for the computation of the Delaunay triangulation
 		this.initDelaunay(false);
 
@@ -86,9 +90,9 @@ var Voronoi = (function () {
 	Voronoi.prototype.initDelaunay = function () {
 		// Create the initial triangle that surrounds all of the seeds
 		// Create the three vertices
-		var v1 = new Vertex(-this.width * 4, -this.height * 4);
-		var v2 = new Vertex(this.width * 10, -this.height * 4);
-		var v3 = new Vertex(-this.width * 4, this.height * 10);
+		var v1 = new Vertex(-1, -1);
+		var v2 = new Vertex(this.width * 2 + 1, -1);
+		var v3 = new Vertex(-1, this.height * 2 + 1);
 		
 		// Store the vertices
 		this.initialVertices = [];
@@ -119,15 +123,19 @@ var Voronoi = (function () {
 	 * Insert a new vertex in the Delaunay triangulation.
 	 */
 	Voronoi.prototype.nextDelaunayStep = function () {
-		if (this.delaunayIndex >= this.seeds.length - 3) {
-			this.cleanUpDelaunay();
-		} else {
+		// Find the cavity triangles
+		if (this.delaunayState === DELAUNAY_STATES.FIND_CAVITY_TRIANGLES) {
+			// Reset
+			this.cavityTriangles = {};
+			this.newTriangles = [];
+			this.cavityEdges = [];
+			
+			// Select the next seed to be inserted
 			this.currentSeed = this.seeds[this.delaunayIndex];
 			this.delaunayIndex += 1;
 
-			this.cavityTriangles = {};
-
 			// Find the triangles that contain the current seed in their circumscribing circle
+			// These triangles will be removed to form a 'cavity' around the seed
 			for (var i = 0; i < this.delaunayTriangles.length; i += 1) {
 				var t = this.delaunayTriangles[i];
 				if (t.circumcircleContains(this.currentSeed)) {
@@ -135,12 +143,12 @@ var Voronoi = (function () {
 				}
 			}
 
-
-			/* Insert the shop in the triangulation */
-
+			// Update the state
+			this.delaunayState = DELAUNAY_STATES.INSERT_SEED;
+			
+		// Insert the seed in the triangulation
+		} else {
 			var newEdges = {}, newEdgesToNewTriangles = {};
-			this.newTriangles = [];
-			this.cavityEdges = [];
 
 			for (var tId in this.cavityTriangles) {
 				if (this.cavityTriangles.hasOwnProperty(tId)) {
@@ -217,6 +225,15 @@ var Voronoi = (function () {
 
 			// Delete the old cavity triangles
 			this.deleteTriangles(this.cavityTriangles);
+			
+			// Update the state
+			this.delaunayState = DELAUNAY_STATES.FIND_CAVITY_TRIANGLES;
+
+			// The last three seeds are from the initial triangle
+			// If they are reached, it means the triangulation has been computed and needs to be cleaned up
+			if (this.delaunayIndex >= this.seeds.length - 3) {
+				this.cleanUpDelaunay();
+			}
 		}
 	};
 
