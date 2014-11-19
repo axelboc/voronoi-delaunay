@@ -39,7 +39,10 @@ var Voronoi = (function () {
 		this.delaunayTriangles = [];
 		this.delaunayComplete = false;
 		this.delaunayIndex = 0;
-		this.delaunayCavityTriangles = [];
+		this.cavityTriangles = {};
+		this.cavityEdges = [];
+		this.newTriangles = [];
+		this.currentSeed = null;
 
 		// Initialise variables used to compute the Voronoi diagram
 		this.voronoiComplete = false;
