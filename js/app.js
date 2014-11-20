@@ -5,7 +5,7 @@
 	var settings = {
 		
 		// The application mode ('auto' or 'manual')
-		mode: 'auto',
+		mode: 'manual',
 			
 		// The number of seeds of the diagram
 		size: 200,
@@ -70,9 +70,6 @@
 				canvas.width = w;
 				canvas.height = h;
 
-				// Create a new Voronoi diagram
-				voronoi = new Voronoi(ctx, w, h, settings);
-
 				// Event delegation
 				var form = document.getElementById('js-form');
 				form.addEventListener('click', AppController.handleEvent);
@@ -82,6 +79,31 @@
 				form.addEventListener('submit', function (evt) {
 					evt.preventDefault();
 				});
+				
+				// Restore the settings from localStorage
+				if (window.localStorage) {
+					var savedSettings = window.localStorage.getItem('settings');
+					if (savedSettings) {
+						settings = JSON.parse(savedSettings);
+					}
+				}
+
+				// Create a new Voronoi instance
+				voronoi = new Voronoi(ctx, w, h, settings);
+				
+				// Initialise the form controls in the sidebar according to the settings
+				document.getElementById('js-size').value = settings.size;
+				document.getElementById(settings.mode).checked = true;
+				AppController.setMode(settings.mode);
+				document.getElementById('show-seeds').checked = settings.seeds.show;
+				document.getElementById('show-delaunay').checked = settings.delaunay.show;
+				document.getElementById('show-voronoi').checked = settings.voronoi.show;
+			},
+			
+			saveSettings: function () {
+				if (window.localStorage) {
+					window.localStorage.setItem('settings', JSON.stringify(settings));
+				}
 			},
 			
 			handleEvent: function (evt) {
@@ -136,7 +158,6 @@
 					// Initialise the triangulation, and run the next step right away
 					voronoi.initDelaunay();
 					voronoi.nextDelaunayStep();
-					console.log('test');
 					
 				} else if (!voronoi.delaunayComplete) {
 					voronoi.nextDelaunayStep();
@@ -182,6 +203,7 @@
 				
 				// Save new setting
 				settings.mode = mode;
+				AppController.saveSettings();
 
 				switch (mode) {
 					case 'auto':
@@ -205,6 +227,7 @@
 				var size = parseInt(this.value, 10);
 				if (!isNaN(size)) {
 					settings.size = size;
+					AppController.saveSettings();
 				}
 			},
 			
@@ -218,6 +241,7 @@
 				
 				var checkbox = document.getElementById('show-' + part);
 				settings[part].show = checkbox.checked;
+				AppController.saveSettings();
 				
 				// Draw
 				voronoi.draw();

@@ -16,12 +16,12 @@
 		<form id="js-form" autocomplete="off">
 			<fieldset>
 				<legend>Size</legend>
-				<input type="number" id="js-size" value="200" data-action="setSize">
+				<input type="number" id="js-size" data-action="setSize">
 			</fieldset>
 			<fieldset>
 				<legend>Mode</legend>
 				<div>
-					<input type="radio" id="auto" name="mode" checked data-action="setMode" data-param="auto">
+					<input type="radio" id="auto" name="mode" data-action="setMode" data-param="auto">
 					<label for="auto">Automatic</label>
 				</div>
 				<div>
@@ -32,7 +32,7 @@
 			<fieldset id="js-show">
 				<legend>Show</legend>
 				<div>
-					<input type="checkbox" id="show-seeds" name="show-seeds" checked data-action="setVisibility" data-param="seeds">
+					<input type="checkbox" id="show-seeds" name="show-seeds" data-action="setVisibility" data-param="seeds">
 					<label for="show-seeds">Seeds</label>
 				</div>
 				<div>
@@ -40,13 +40,13 @@
 					<label for="show-delaunay">Delaunay</label>
 				</div>
 				<div>
-					<input type="checkbox" id="show-voronoi" name="show-voronoi" checked data-action="setVisibility" data-param="voronoi">
+					<input type="checkbox" id="show-voronoi" name="show-voronoi" data-action="setVisibility" data-param="voronoi">
 					<label for="show-voronoi">Voronoi</label>
 				</div>
 			</fieldset>
 			<button type="button" class="mb1" data-action="generate">Generate</button>
-			<button id="js-next" type="button" data-action="nextStep" disabled>Next step</button>
-			<button id="js-reset" type="button" data-action="reset" disabled>Reset</button>
+			<button id="js-next" type="button" data-action="nextStep">Next step</button>
+			<button id="js-reset" type="button" data-action="reset">Reset</button>
 		</form>
 		<p class="by">by <a href="https://github.com/axelboc/voronoi-delaunay" target="_blank">axelboc</a></p>
 	</div>
