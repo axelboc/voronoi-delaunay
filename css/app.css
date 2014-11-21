@@ -15,14 +15,17 @@ body {
 
 body {
 	display: table;
+	table-layout: fixed;
 	border-collapse: collapse;
 	width: 100%;
+	min-width: 30em;
 	margin: 0;
-	font-family: Verdana,Geneva,sans-serif
+	font-family: Verdana, Geneva, sans-serif;
 }
 
 .wrapper {
 	display: table-row;
+	height: 100%;
 }
 
 .sidebar,
@@ -31,18 +34,16 @@ body {
 	vertical-align: top;
 }
 
+.canvas {
+	display: block;
+}
+
 .sidebar {
 	position: relative;
-	width: 15%;
+	width: 35%;
 	padding: 1.5em 1em 0;
 	background-color: #eee;
 	font-size: 90%;
-}
-
-.canvas {
-	display: block;
-	width: 100%;
-	height: auto;
 }
 
 fieldset,
@@ -70,6 +71,7 @@ button {
 }
 
 input[type="number"] {
+	width: 100%;
 	cursor: text;
 }
 
@@ -87,4 +89,28 @@ button {
 	width: 100%;
 	margin: 0;
 	text-align: center;
+}
+
+@media (min-width: 45em) {
+	
+	.sidebar {
+		width: 25%;
+	}
+	
+}
+
+@media (min-width: 55em) {
+	
+	.sidebar {
+		width: 20%;
+	}
+	
+}
+
+@media (min-width: 70em) {
+	
+	.sidebar {
+		width: 15%;
+	}
+	
 }

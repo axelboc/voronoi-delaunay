@@ -63,7 +63,7 @@
 				var main = document.getElementById('js-main');
 				var w = main.clientWidth;
 				var h = main.clientHeight;
-
+				
 				// Get the canvas and its context, and set its dimensions
 				var canvas = document.getElementById('js-canvas');
 				var ctx = canvas.getContext('2d');
@@ -255,12 +255,16 @@
 	 * Initialise the app when the DOM is ready.
 	 */
 	document.addEventListener('DOMContentLoaded', function () {
-		AppController.init();
+		// Fix Chrome bug: `clientWidth` of `.main` table cell is incorrect if retrieved right away
+		// A timeout of 5ms seems to solve the issue, which doesn't occur in Firefox and IE
+		setTimeout(function () {
+			AppController.init();
 		
-		// Optionally, generate a new diagram right away
-		if (settings.generateOnLoad) {
-			AppController.generate();
-		}
+			// Optionally, generate a new diagram right away
+			if (settings.generateOnLoad) {
+				AppController.generate();
+			}
+		}, 5);
 	});
 
 }());
