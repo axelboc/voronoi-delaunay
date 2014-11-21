@@ -5,16 +5,19 @@ This JavaScript program positions a set of vertices (the *seeds*) randomly on an
 
 The script first computes the [Delaunay triangulation](http://en.wikipedia.org/wiki/Delaunay_triangulation) of the vertices using the [Bowyer-Watson algorithm](http://en.wikipedia.org/wiki/Bowyer%E2%80%93Watson_algorithm). It then deduces the Voronoi diagram from the triangulation. The Bowyer-Watson algorithm is an insertion algorithm; it builds the Delaunay triangulation one vertex at a time.
 
-This program is written in vanilla JavaScript and has no dependencies.
+This program is written in vanilla JavaScript. It has no dependencies and runs locally in any modern browser (tested in Firefox, Chrome and IE11).
 
 
 Usage
 -----
 
-Start by simply opening `index.htm` in any recent browser with [HTML5 Canvas support](http://caniuse.com/#feat=canvas).
+Start by simply opening `index.htm` in your browser&mdash;a new diagram should be automatically generated. Then, use the controls in the sidebar to:
 
-The script implements a mode that shows the construction of the Delaunay triangulation step by step.
-In this mode, 3 canvases are used, that show:
-1. the triangles that are about to be deleted;
-2. the perimeter of the cavity formed by the deleted triangles; and
-3. the triangles that were just added to the triangulation.
+- generate a new diagram,
+- change the size of the diagram (i.e. the number of seeds),
+- show or hide parts of the diagram (the seeds, the Delaunay triangulation, and the Voronoi diagram itself), or
+- switch to *manual* mode.
+
+In *manual* mode, the construction of the Delaunay triangulation is performed step by step. Use the *Next* button to show the next step, and the *Reset* button to start the construction again with the same seeds.
+
+The state of the sidebar controls (or more precisely, the `settings` array in `app.js`) is persited to `localStorage`&mdash;if supported&mdash;and restored on page load. In IE11, this feature doesn't work when `index.htm` is opened from the file system.
