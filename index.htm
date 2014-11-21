@@ -1,19 +1,56 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Voronoi - Delaunay</title>
-<script type="text/javascript" src="js/graph.js"></script>
-<script type="text/javascript" src="js/city.js"></script>
-<script type="text/javascript" src="js/voronoi.js"></script>
-<link rel="stylesheet" type="text/css" href="css/voronoi.css" />
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<title>Voronoi-Delaunay | axelboc</title>
+	<script src="js/assert.js"></script>
+	<script src="js/graph.js"></script>
+	<script src="js/voronoi.js"></script>
+	<script src="js/app.js"></script>
+	<link rel="stylesheet" href="css/app.css">
 </head>
-
 <body>
-<p><button id="next_btn" class="hidden" type="button">Next</button><p>
-<p><canvas id="voronoi1" width="500" height="300"></canvas><p>
-<p><canvas id="voronoi2" width="500" height="300"></canvas>
-<canvas id="voronoi3" width="500" height="300"></canvas></p>
+<div class="sidebar">
+	<form id="js-form" class="sidebar-form" autocomplete="off">
+		<fieldset>
+			<legend>Size</legend>
+			<input type="number" id="js-size" data-action="setSize">
+		</fieldset>
+		<fieldset>
+			<legend>Mode</legend>
+			<div>
+				<input type="radio" id="auto" name="mode" data-action="setMode" data-param="auto">
+				<label for="auto">Automatic</label>
+			</div>
+			<div>
+				<input type="radio" id="manual" name="mode" data-action="setMode" data-param="manual">
+				<label for="manual">Manual</label>
+			</div>
+		</fieldset>
+		<fieldset id="js-show">
+			<legend>Show</legend>
+			<div>
+				<input type="checkbox" id="show-seeds" name="show-seeds" data-action="setVisibility" data-param="seeds">
+				<label for="show-seeds">Seeds</label>
+			</div>
+			<div>
+				<input type="checkbox" id="show-delaunay" name="show-delaunay" data-action="setVisibility" data-param="delaunay">
+				<label for="show-delaunay">Delaunay</label>
+			</div>
+			<div>
+				<input type="checkbox" id="show-voronoi" name="show-voronoi" data-action="setVisibility" data-param="voronoi">
+				<label for="show-voronoi">Voronoi</label>
+			</div>
+		</fieldset>
+		<button type="button" class="mb1" data-action="generate">Generate</button>
+		<button id="js-next" type="button" data-action="nextStep">Next step</button>
+		<button id="js-reset" type="button" data-action="reset">Reset</button>
+	</form>
+	<p class="by">by <a href="https://github.com/axelboc/voronoi-delaunay" target="_blank">axelboc</a></p>
+</div>
+<main id="js-main" class="main">
+	<canvas id="js-canvas" class="canvas" width="1000" height="500"></canvas>
+</main>
 </body>
 </html>

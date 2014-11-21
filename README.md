@@ -1,28 +1,23 @@
 Voronoi - Delaunay
 ==================
 
-This JavaScript program positions a set of vertices (or shops) randomly on an HTML5 canvas (the city), then computes and draws their [**Voronoi diagram**](http://en.wikipedia.org/wiki/Voronoi_diagram).
+This JavaScript program positions a set of vertices (the *seeds*) randomly on an HTML5 canvas (the *plane*), then computes and draws their [**Voronoi diagram**](http://en.wikipedia.org/wiki/Voronoi_diagram).
 
-The script first computes the [Delaunay triangulation](http://en.wikipedia.org/wiki/Delaunay_triangulation) of the vertices using the [Bowyer-Watson algorithm](http://en.wikipedia.org/wiki/Bowyer%E2%80%93Watson_algorithm), then deduces the Voronoi diagram from the triangulation.
-The Bowyer-Watson algorithm is an insertion algorithm that builds the Delaunay triangulation one vertex at a time.
+The script first computes the [Delaunay triangulation](http://en.wikipedia.org/wiki/Delaunay_triangulation) of the vertices using the [Bowyer-Watson algorithm](http://en.wikipedia.org/wiki/Bowyer%E2%80%93Watson_algorithm). It then deduces the Voronoi diagram from the triangulation. The Bowyer-Watson algorithm is an insertion algorithm; it builds the Delaunay triangulation one vertex at a time.
 
-This program does not use any JavaScript library.
+This program is written in vanilla JavaScript. It has no dependencies and runs locally in any modern browser (tested in Firefox, Chrome and IE11).
 
 
 Usage
 -----
 
-The script is run by simply opening `index.htm` in any recent browser that supports HTML5 Canvas. 
+Start by simply opening `index.htm` in your browser&mdash;a new diagram should be automatically generated. Then, use the controls in the sidebar to:
 
-The object `VoronoiSettings` in file `js/voronoi.js` contains some basic configuration options:
-- the number of source vertices, and
-- the grid spacing, in pixels.
+- generate a new diagram,
+- change the size of the diagram (i.e. the number of seeds),
+- show or hide parts of the diagram (the seeds, the Delaunay triangulation, and the Voronoi diagram itself), or
+- switch to *manual* mode.
 
-The grid spacing setting is used to position the source vertices in a grid: a value of 10 means that their coordinates will be multiples of 10.
-Note that, depending on the number of vertices, choosing a spacing that is too large may result in the script running an infinite loop, as it will not find enough valid positions to place the vertices.
+In *manual* mode, the construction of the Delaunay triangulation is performed step by step. Use the *Next* button to show the next step, and the *Reset* button to start the construction again with the same seeds.
 
-The script also implements a mode that shows the construction of the Delaunay triangulation step by step.
-In this mode, 3 canvases are used, that show:
-1. the triangles that are about to be deleted;
-2. the perimeter of the cavity formed by the deleted triangles; and
-3. the triangles that were just added to the triangulation.
+The state of the sidebar controls (or more precisely, the `settings` array in `app.js`) is persited to `localStorage`&mdash;if supported&mdash;and restored on page load. In IE11, this feature doesn't work when `index.htm` is opened from the file system.
