@@ -252,19 +252,16 @@
 	}());
 	
 	/**
-	 * Initialise the app when the DOM is ready.
+	 * Initialise the app when the page is loaded.
+	 * `clientWidth` of `.main` table cell is incorrect if retrieved on DOMContentLoaded.
 	 */
-	document.addEventListener('DOMContentLoaded', function () {
-		// Fix Chrome bug: `clientWidth` of `.main` table cell is incorrect if retrieved right away
-		// A timeout of 5ms seems to solve the issue, which doesn't occur in Firefox and IE
-		setTimeout(function () {
-			AppController.init();
-		
-			// Optionally, generate a new diagram right away
-			if (settings.generateOnLoad) {
-				AppController.generate();
-			}
-		}, 50);
+	document.addEventListener('load', function () {
+		AppController.init();
+
+		// Optionally, generate a new diagram right away
+		if (settings.generateOnLoad) {
+			AppController.generate();
+		}
 	});
 
 }());
