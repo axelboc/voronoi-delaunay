@@ -264,7 +264,7 @@
 			if (settings.generateOnLoad) {
 				AppController.generate();
 			}
-		}, 5);
+		}, 50);
 	});
 
 }());
