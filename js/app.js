@@ -255,7 +255,7 @@
 	 * Initialise the app when the page is loaded.
 	 * `clientWidth` of `.main` table cell is incorrect if retrieved on DOMContentLoaded.
 	 */
-	document.addEventListener('load', function () {
+	window.addEventListener('load', function () {
 		AppController.init();
 
 		// Optionally, generate a new diagram right away
