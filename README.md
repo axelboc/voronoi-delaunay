@@ -11,7 +11,7 @@ This program is written in vanilla JavaScript. It has no dependencies and runs l
 Usage
 -----
 
-Visit http://bit.ly/voronoi-delaunay, or download/clone this repository and open `index.htm`&mdash;a new diagram should be automatically generated. Then, use the controls in the sidebar to:
+Visit http://bit.ly/voronoi-delaunay-v21, or download/clone this repository and open `index.htm`&mdash;a new diagram should be automatically generated. Then, use the controls in the sidebar to:
 
 - generate a new diagram,
 - change the size of the diagram (i.e. the number of seeds),
