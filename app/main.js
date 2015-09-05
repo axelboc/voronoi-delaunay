@@ -6,7 +6,7 @@
 		
 		// The application mode ('auto' or 'manual')
 		mode: 'auto',
-			
+		
 		// The number of seeds of the diagram
 		size: 200,
 		
