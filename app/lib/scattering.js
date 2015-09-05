@@ -1,6 +1,6 @@
 
 import assert from './assert';
-import Vertex from '../classes/Vertex';
+import Vertex from '../classes/vertex';
 
 
 /**

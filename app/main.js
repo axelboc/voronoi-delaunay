@@ -1,7 +1,7 @@
 
 import defaults from './settings.json';
 import assert from './lib/assert';
-import Voronoi from './classes/Voronoi';
+import Voronoi from './classes/voronoi';
 
 
 let voronoi;

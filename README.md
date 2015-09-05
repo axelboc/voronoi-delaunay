@@ -20,5 +20,4 @@ Visit http://bit.ly/voronoi-delaunay-v21 - a new diagram should be generated aut
 
 In *manual* mode, the construction of the Delaunay triangulation is performed step by step. Use the *Next* button to show the next step, and the *Reset* button to start the construction again with the same seeds.
 
-The state of the sidebar controls (or more precisely, the `settings` array in `app.js`) is persited to `localStorage`&mdash;if supported&mdash;and restored on page load. In IE11, this feature doesn't work when `index.htm` is opened from the file system.
-
+The state of the interface is persited to `localStorage` and restored on page load.
