@@ -1,35 +1,40 @@
 
-var Voronoi = (function () {
-	"use strict";
+import assert from '../lib/assert';
+import * as scattering from '../lib/scattering';
+import Vertex from './Vertex';
+import Edge from './Edge';
+import Triangle from './Triangle';
+
+
+// Possible states for the computation of the Delaunay triangulation
+const FIND_CAVITY_TRIANGLES = Symbol();
+const INSERT_SEED = Symbol();
+
+
+/**
+ * Voronoi diagram generator.
+ * @param {CanvasRenderingContext2D} ctx - the drawing context
+ * @param {Integer} width
+ * @param {Integer} height
+ * @param {Object} settings
+ */
+export default class Voronoi {
 	
-	var DELAUNAY_STATES = {
-		FIND_CAVITY_TRIANGLES: 0,
-		INSERT_SEED: 1,
-	};
-	
-	/**
-	 * Voronoi diagram generator.
-	 * @param {CanvasRenderingContext2D} ctx - the drawing context
-	 * @param {Integer} width
-	 * @param {Integer} height
-	 * @param {Object} settings
-	 */
-	function Voronoi(ctx, width, height, settings) {
+	constructor(ctx, width, height, settings) {
 		this.ctx = ctx;
 		this.width = width;
 		this.height = height;
 		this.settings = settings;
-	};
+	}
 	
 	/**
 	 * Initialise or reset the generator.
 	 * To reset and regenerate the same diagram, pass `true` as argument.
 	 * @param {Boolean} keepScatter - whether to keep the previously scatterd seeds
 	 */
-	Voronoi.prototype.init = function (keepScatter) {
+	init(keepScatter) {
 		assert(typeof keepScatter === 'boolean', "argument `keepScatter` must be a boolean");
-		assert(!keepScatter || this.seeds && this.seeds.length > 0,
-			   "no scatter to keep");
+		assert(!keepScatter || this.seeds && this.seeds.length > 0, "no scatter to keep");
 		
 		// Scatter the seeds, unless asked otherwise
 		if (!keepScatter) {
@@ -44,32 +49,33 @@ var Voronoi = (function () {
 		this.cavityEdges = [];
 		this.newTriangles = [];
 		this.currentSeed = null;
-		this.delaunayState = DELAUNAY_STATES.FIND_CAVITY_TRIANGLES;
+		this.delaunayState = FIND_CAVITY_TRIANGLES;
 
 		// Initialise variables used to compute the Voronoi diagram
 		this.voronoiComplete = false;
 		this.voronoiEdges = [];
-	};
+	}
 	
 	/**
 	 * Scatter the seeds on the plane.
 	 */
-	Voronoi.prototype.scatterSeeds = function () {
+	scatterSeeds() {
 		assert(this.settings.size > 0, "`settings.size` must be greater than 0");
 		
-		switch (this.settings.seeds.scattering) {
-			case 'random':
-				this.seeds = Scatter.random(this.width, this.height, this.settings.size);
-				break;
-			default:
-				assert(false, "scattering not supported");
+		const alg = this.settings.seeds.scattering;
+		const scatteringFunc = scattering[alg];
+		
+		if (scatteringFunc) {
+			this.seeds = scatteringFunc(this.width, this.height, this.settings.size);
+		} else {
+			assert(false, "scattering not supported: " + alg);
 		}
-	};
+	}
 	
 	/**
 	 * Generate the diagram.
 	 */
-	Voronoi.prototype.generate = function () {
+	generate() {
 		assert(this.seeds && this.seeds.length > 0, "seeds not scattered");
 		
 		// Prepare for the computation of the Delaunay triangulation
@@ -82,12 +88,12 @@ var Voronoi = (function () {
 
 		// Compute the Voronoi diagram from the triangulation
 		this.computeVoronoi();
-	};
+	}
 
 	/**
 	 * Prepare for the computation of the Delaunay triangulation with the Bowyer-Watson algorithm.
 	 */
-	Voronoi.prototype.initDelaunay = function () {
+	initDelaunay() {
 		// Create the initial triangle that surrounds all of the seeds
 		// Create the three vertices
 		var v1 = new Vertex(-1, -1);
@@ -117,14 +123,14 @@ var Voronoi = (function () {
 		
 		// Add the vertices of the initial triangle to the seeds array
 		this.seeds = this.seeds.concat(initialTriangle.vertices);
-	};
+	}
 
 	/**
 	 * Insert a new vertex in the Delaunay triangulation.
 	 */
-	Voronoi.prototype.nextDelaunayStep = function () {
+	nextDelaunayStep() {
 		// Find the cavity triangles
-		if (this.delaunayState === DELAUNAY_STATES.FIND_CAVITY_TRIANGLES) {
+		if (this.delaunayState === FIND_CAVITY_TRIANGLES) {
 			// Reset
 			this.cavityTriangles = {};
 			this.newTriangles = [];
@@ -136,15 +142,15 @@ var Voronoi = (function () {
 
 			// Find the triangles that contain the current seed in their circumscribing circle
 			// These triangles will be removed to form a 'cavity' around the seed
-			for (var i = 0; i < this.delaunayTriangles.length; i += 1) {
-				var t = this.delaunayTriangles[i];
+			for (let i = 0; i < this.delaunayTriangles.length; i += 1) {
+				let t = this.delaunayTriangles[i];
 				if (t.circumcircleContains(this.currentSeed)) {
 					this.cavityTriangles[t.id] = t;
 				}
 			}
 
 			// Update the state
-			this.delaunayState = DELAUNAY_STATES.INSERT_SEED;
+			this.delaunayState = INSERT_SEED;
 			
 		// Insert the seed in the triangulation
 		} else {
@@ -152,10 +158,10 @@ var Voronoi = (function () {
 
 			for (var tId in this.cavityTriangles) {
 				if (this.cavityTriangles.hasOwnProperty(tId)) {
-					var t = this.cavityTriangles[tId];
+					let t = this.cavityTriangles[tId];
 
 					// Loop through the edges of the old triangle
-					for (var i = 0; i < 3; i += 1) {
+					for (let i = 0; i < 3; i += 1) {
 						var e = t.edges[i];
 						var neighbour = t.getNeighbour(e);
 
@@ -227,7 +233,7 @@ var Voronoi = (function () {
 			this.deleteTriangles(this.cavityTriangles);
 			
 			// Update the state
-			this.delaunayState = DELAUNAY_STATES.FIND_CAVITY_TRIANGLES;
+			this.delaunayState = FIND_CAVITY_TRIANGLES;
 
 			// The last three seeds are from the initial triangle
 			// If they are reached, it means the triangulation has been computed and needs to be cleaned up
@@ -235,12 +241,12 @@ var Voronoi = (function () {
 				this.cleanUpDelaunay();
 			}
 		}
-	};
+	}
 
 	/**
 	 * Clean-up the Delaunay triangulation by removing the initial triangle as well as the perimeter triangles.
 	 */
-	Voronoi.prototype.cleanUpDelaunay = function () {
+	cleanUpDelaunay() {
 		this.delaunayComplete = true;
 
 		// Find and remove the triangles on the perimeter of the triangulation
@@ -263,12 +269,12 @@ var Voronoi = (function () {
 
 		// Remove the initial vertices
 		this.seeds.splice(this.seeds.length - 3, 3);
-	};
+	}
 
 	/**
 	 * Build the Voronoi diagram from the Delaunay triangulation.
 	 */
-	Voronoi.prototype.computeVoronoi = function () {
+	computeVoronoi() {
 		this.voronoiComplete = true;
 
 		var i, j, t, n;
@@ -280,7 +286,7 @@ var Voronoi = (function () {
 				var nIndex = this.delaunayTriangles.indexOf(n);
 				if (nIndex > i) {
 					// Create the Voronoi edge between the circumcentres of the two triangles t and n
-					var e = new Edge(
+					let e = new Edge(
 						new Vertex(t.circumX, t.circumY),
 						new Vertex(n.circumX, n.circumY)
 					);
@@ -291,7 +297,7 @@ var Voronoi = (function () {
 					// i.e. this triangle is now on the perimeter of the Delaunay triangulation
 
 					// Get the perimeter edge
-					var e = t.edges[j];
+					let e = t.edges[j];
 
 					// Remove the neighbour, just to keep everything clean
 					t.setNeighbour(e, null);
@@ -363,13 +369,13 @@ var Voronoi = (function () {
 				}
 			}
 		}
-	};
+	}
 
 	/**
 	 * Delete some triangles from the Delaunay triangulation.
 	 * @param {Array} triangles The triangles to delete.
 	 */
-	Voronoi.prototype.deleteTriangles = function (triangles) {
+	deleteTriangles(triangles) {
 		for (var tId in triangles) {
 			if (triangles.hasOwnProperty(tId)) {
 				var t = triangles[tId];
@@ -378,12 +384,12 @@ var Voronoi = (function () {
 				this.delaunayTriangles.splice(this.delaunayTriangles.indexOf(t), 1);
 			}
 		}
-	};
+	}
 	
 	/**
 	 * Draw the Voronoi diagram, its seeds and its Delaunay triangulation. 
 	 */
-	Voronoi.prototype.draw = function () {
+	draw() {
 		// Clear the canvas
 		this.clear();
 		
@@ -408,37 +414,36 @@ var Voronoi = (function () {
 		} else {
 			this.drawDelaunayStep();
 		}
-	};
+	}
 
 	/**
 	 * Clear the canvas.
 	 */
-	Voronoi.prototype.clear = function () {
+	clear() {
 		// Clear by drawing a white rectangle over the city
 		this.ctx.fillStyle = this.settings.bgColour;
 		this.ctx.fillRect(0, 0, this.width, this.height);
-	};
+	}
 
 	/**
 	 * Draw the seeds of the diagram.
 	 */
-	Voronoi.prototype.drawSeeds = function () {
+	drawSeeds() {
 		this.ctx.fillStyle = this.settings.seeds.colour;
 		for (var i = 0; i < this.seeds.length; i += 1) {
 			this.seeds[i].draw(this.ctx, this.settings.seeds.radius);
 		}
-	};
+	}
 
 	/**
 	 * Draw the Delaunay triangulation.
-	 * @param {Boolean} showSeeds true to draw the seeds in the first context.
 	 */
-	Voronoi.prototype.drawDelaunay = function (showSeeds) {
+	drawDelaunay() {
 		this.ctx.lineWidth = this.settings.delaunay.width;
 		this.ctx.strokeStyle = this.settings.delaunay.colour;
 
 		this.drawTriangles(this.delaunayTriangles, false, true);
-	};
+	}
 
 	/**
 	 * Draw some triangles.
@@ -446,16 +451,16 @@ var Voronoi = (function () {
 	 * @param {Boolean} fill Indicates whether to fill the triangles.
 	 * @param {Boolean} stroke Indicates whether to stroke the edges of the triangles.
 	 */
-	Voronoi.prototype.drawTriangles = function (triangles, fill, stroke) {
+	drawTriangles(triangles, fill, stroke) {
 		for (var i = 0; i < triangles.length; i += 1) {
-			 triangles[i].draw(this.ctx, fill, stroke);
+			triangles[i].draw(this.ctx, fill, stroke);
 		}
-	};
+	}
 
 	/**
 	 * Draw the current step in the creation of the Delaunay triangulation.
 	 */
-	Voronoi.prototype.drawDelaunayStep = function () {
+	drawDelaunayStep() {
 		// Clear the canvas
 		this.clear();
 		
@@ -476,7 +481,7 @@ var Voronoi = (function () {
 			this.ctx.lineWidth = 3.0;
 			this.ctx.strokeStyle = '#cccc00';
 			this.ctx.fillStyle = '#ccffcc';
-			for (var i = 0; i < this.newTriangles.length; i++){
+			for (let i = 0; i < this.newTriangles.length; i++){
 				this.newTriangles[i].draw(this.ctx, true, true);
 			}
 		}
@@ -494,19 +499,19 @@ var Voronoi = (function () {
 		if (this.cavityEdges) {
 			this.ctx.lineWidth = 3.0;
 			this.ctx.strokeStyle = "#0000ff";
-			for (var i = 0; i < this.cavityEdges.length; i++){
+			for (let i = 0; i < this.cavityEdges.length; i++){
 				this.cavityEdges[i].draw(this.ctx);
 			}
 		}
 
 		// Draw Delaunay triangles
 		this.drawDelaunay();
-	};
+	}
 
 	/**
 	 * Draw the Voronoi diagram.
 	 */
-	Voronoi.prototype.drawVoronoi = function () {
+	drawVoronoi() {
 		this.ctx.strokeStyle = this.settings.voronoi.colour;
 		this.ctx.lineWidth = this.settings.voronoi.width;
 		this.ctx.lineCap = 'round';
@@ -514,8 +519,6 @@ var Voronoi = (function () {
 		for (var i = 0; i < this.voronoiEdges.length; i += 1) {
 			this.voronoiEdges[i].draw(this.ctx);
 		}
-	};
+	}
 	
-	return Voronoi;
-	
-}());
+}
