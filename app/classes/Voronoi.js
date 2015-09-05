@@ -1,9 +1,9 @@
 
 import assert from '../lib/assert';
 import * as scattering from '../lib/scattering';
-import Vertex from './Vertex';
-import Edge from './Edge';
-import Triangle from './Triangle';
+import Vertex from './vertex';
+import Edge from './edge';
+import Triangle from './triangle';
 
 
 // Possible states for the computation of the Delaunay triangulation
