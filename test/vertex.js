@@ -1,6 +1,6 @@
 
 import {expect} from 'chai';
-import Vertex from '../app/classes/vertex';
+import Vertex from '../app/lib/vertex';
 
 describe('vertex', function () {
 

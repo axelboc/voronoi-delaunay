@@ -3,9 +3,9 @@ let count = 0;
 
 /**
  * A group of 3 vertices forming a triangle.
- * @param {Array} vertices The 3 vertices of the triangle.
- * @param {Array} edges The 3 edges of the triangle.
- * @param {Array} neighbours The neighbour triangles in the same order as their corresponding edges.
+ * @param {Array} vertices - the 3 vertices of the triangle
+ * @param {Array} edges - the 3 edges of the triangle
+ * @param {Array} neighbours - the neighbour triangles in the same order as their corresponding edges
  */
 export default class Triangle {
 	
@@ -40,8 +40,8 @@ export default class Triangle {
 
 	/**
 	 * Test whether or not the circumcircle of the triangle contains the given shop.
-	 * @param {Vertex} v The vertex to test.
-	 * @return {Boolean} true if the vertex is inside the circumcircle of the triangle; false otherwise.
+	 * @param {Vertex} v - the vertex to test
+	 * @return {Boolean} `true` if the vertex is inside the circumcircle of the triangle; `false` otherwise
 	 */
 	circumcircleContains(v) {
 		// The vertex is inside of the circumcircle if its distance to the circle's center is less than
@@ -56,8 +56,8 @@ export default class Triangle {
 
 	/**
 	 * Set the neighbour triangle for the edge given by its index.
-	 * @param {Integer} The index of the edge for which to set the neighbour triangle.
-	 * @param {Triangle} The new neighbour triangle.
+	 * @param {Integer} edge - the index of the edge for which to set the neighbour triangle
+	 * @param {Triangle} neighbour - the new neighbour triangle
 	 */
 	setNeighbour(edge, neighbour) {
 		this.edgesToNeighbours[edge.id] = neighbour;
@@ -65,9 +65,9 @@ export default class Triangle {
 
 	/**
 	 * Draw the three segments of the triangle.
-	 * @param {Object} ctx The context in which to draw the triangle.
-	 * @param {Boolean} fill Flag to indicate whether or not the triangle should be filled.
-	 * @param {Boolean} stroke Flag to indicate whether or not the triangle should be stroked.
+	 * @param {CanvasRenderingContext2D} ctx - the context in which to draw the triangle
+	 * @param {Boolean} fill - flag to indicate whether or not the triangle should be filled
+	 * @param {Boolean} stroke - flag to indicate whether or not the triangle should be stroked
 	 */
 	draw(ctx, fill, stroke) {
 		ctx.beginPath();

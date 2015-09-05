@@ -3,8 +3,8 @@ let count = 0;
 
 /**
  * A vertex defined by a pair of coordinates (x, y).
- * @param {Integer} x The x coordinate of the vertex.
- * @param {Integer} y The y coordinate of the vertex.
+ * @param {Integer} x
+ * @param {Integer} y
  */
 export default class Vertex {
 	

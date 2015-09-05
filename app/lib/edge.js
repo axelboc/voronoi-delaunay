@@ -3,8 +3,8 @@ let count = 0;
 
 /**
  * An edge between two vertices.
- * @param {Shop} v1 The first vertex of the edge.
- * @param {Shop} v2 The second vertex of the edge.
+ * @param {Shop} v1
+ * @param {Shop} v2
  */
 export default class Edge {
 	
@@ -20,8 +20,8 @@ export default class Edge {
 
 	/**
 	 * Test whether two edges are equal.
-	 * @param {Edge} edge The edge to be tested for equality.
-	 * @return {Boolean} true if the vertices of the edges match; false otherwise.
+	 * @param {Edge} edge - the edge to be tested for equality
+	 * @return {Boolean} `true` if the vertices of the edges match; `false` otherwise
 	 */
 	isEqual(edge) {
 		return (this.v1 === edge.v1 && this.v2 === edge.v2 || this.v1 === edge.v2 && this.v2 === edge.v1);
@@ -29,7 +29,7 @@ export default class Edge {
 
 	/**
 	 * Draw the edge.
-	 * @param {Object} ctx The context in which to draw the edge.
+	 * @param {CanvasRenderingContext2D} ctx - the context in which to draw the edge
 	 */
 	draw(ctx) {
 		ctx.beginPath();

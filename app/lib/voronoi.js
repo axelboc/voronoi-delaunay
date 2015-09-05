@@ -373,7 +373,7 @@ export default class Voronoi {
 
 	/**
 	 * Delete some triangles from the Delaunay triangulation.
-	 * @param {Array} triangles The triangles to delete.
+	 * @param {Array} triangles - the triangles to delete
 	 */
 	deleteTriangles(triangles) {
 		for (var tId in triangles) {
@@ -447,9 +447,9 @@ export default class Voronoi {
 
 	/**
 	 * Draw some triangles.
-	 * @param {Array} triangles The triangles to draw.
-	 * @param {Boolean} fill Indicates whether to fill the triangles.
-	 * @param {Boolean} stroke Indicates whether to stroke the edges of the triangles.
+	 * @param {Array} triangles - the triangles to draw
+	 * @param {Boolean} fill - indicates whether to fill the triangles
+	 * @param {Boolean} stroke - indicates whether to stroke the edges of the triangles
 	 */
 	drawTriangles(triangles, fill, stroke) {
 		for (var i = 0; i < triangles.length; i += 1) {
