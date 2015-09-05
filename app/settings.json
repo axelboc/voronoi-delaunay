@@ -1,0 +1,45 @@
+{
+
+	// The application mode ("auto" or "manual")
+	"mode": "auto",
+
+	// The number of seeds of the diagram
+	"size": 200,
+
+	// Whether to generate a diagram on page load
+	"generateOnLoad": true,
+
+	// The canvas' background colour
+	"bgColour": "#fff",
+
+	"seeds": {
+		// Whether to show the seeds on the diagram
+		"show": true,
+
+		// The scattering algorithm to use to position the seeds on the plane (allowed: "random")
+		"scattering": "random",
+
+		// The size and colour of the seeds on the canvas
+		"radius": 3,
+		"colour": "#db4b23"
+	},
+
+	"delaunay": {
+		// Whether to show the Delaunay triangulation on the canvas 
+		"show": false,
+
+		// The width and colour of the lines of the triangulation
+		"width": 1,
+		"colour": "#3f3"
+	},
+
+	"voronoi": {
+		// Whether to show the diagram
+		"show": true,
+
+		// The width and colour of the lines of the diagram on the canvas
+		"width": 2,
+		"colour": "#0b8770"
+	}
+
+}
