@@ -8,10 +8,10 @@ The script first computes the [Delaunay triangulation](http://en.wikipedia.org/w
 This program is written in vanilla ES2015 JavaScript. It has no dependencies and runs locally in any modern browser.
 
 
-Usage
------
+Demo
+----
 
-Visit http://bit.ly/voronoi-delaunay-v21, or download/clone this repository, run `npm run build` and open `public/index.htm`&mdash;a new diagram should be generated automatically. Then, use the controls in the sidebar to:
+Visit http://bit.ly/voronoi-delaunay-v21 - a new diagram should be generated automatically. Then, use the controls in the sidebar to:
 
 - generate a new diagram,
 - change the size of the diagram (i.e. the number of seeds),
