@@ -1,14 +1,14 @@
 
 import assert from '../lib/assert';
-import * as scattering from '../lib/scattering';
+import Scatter from '../lib/scatter';
 import Vertex from './vertex';
 import Edge from './edge';
 import Triangle from './triangle';
 
 
 // Possible states for the computation of the Delaunay triangulation
-const FIND_CAVITY_TRIANGLES = Symbol();
-const INSERT_SEED = Symbol();
+const FIND_CAVITY_TRIANGLES = Symbol('FIND_CAVITY_TRIANGLES');
+const INSERT_SEED = Symbol('INSERT_SEED');
 
 
 /**
@@ -60,16 +60,12 @@ export default class Voronoi {
 	 * Scatter the seeds on the plane.
 	 */
 	scatterSeeds() {
-		assert(this.settings.size > 0, "`settings.size` must be greater than 0");
-		
-		const alg = this.settings.seeds.scattering;
-		const scatteringFunc = scattering[alg];
-		
-		if (scatteringFunc) {
-			this.seeds = scatteringFunc(this.width, this.height, this.settings.size);
-		} else {
-			assert(false, "scattering not supported: " + alg);
-		}
+		this.seeds = Scatter.generate(
+			this.settings.seeds.scattering,
+			this.width,
+			this.height,
+			this.settings.size
+		);
 	}
 	
 	/**
