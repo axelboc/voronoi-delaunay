@@ -26,7 +26,28 @@ function distinct(vertices) {
 	return true;
 }
 
-export default { distinct };
+/**
+ * Measure the average execution time of a function.
+ * @param {Function} func
+ * @return {Number} - duration in milliseconds with a precision to the nanosecond
+ */
+function timing(func, repeat = 10) {
+	const start = process.hrtime();
+	
+	for (let i = 0; i < repeat; i += 1) {
+		func();
+	}
+	
+	const diff = process.hrtime(start);
+	
+	const millisec = diff[0] * 1e3 + diff[1] / 1e6;
+	const average = millisec / repeat;
+	console.log(average);
+	
+	return average;
+}
+
+export default { distinct, timing };
 
 
 /**
