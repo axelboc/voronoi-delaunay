@@ -14,17 +14,6 @@ export default class Edge {
 		
 		this.v1 = v1;
 		this.v2 = v2;
-
-		this.vertices = [v1, v2];
-	}
-
-	/**
-	 * Test whether two edges are equal.
-	 * @param {Edge} edge - the edge to be tested for equality
-	 * @return {Boolean} `true` if the vertices of the edges match; `false` otherwise
-	 */
-	isEqual(edge) {
-		return (this.v1 === edge.v1 && this.v2 === edge.v2 || this.v1 === edge.v2 && this.v2 === edge.v1);
 	}
 
 	/**
