@@ -2,6 +2,7 @@
 import {expect} from 'chai';
 import Vertex from '../app/lib/vertex';
 
+
 describe('Vertex', function () {
 
 	describe('constructor', function () {

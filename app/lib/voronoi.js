@@ -1,6 +1,6 @@
 
-import assert from '../lib/assert';
-import Scatter from '../lib/scatter';
+import assert from './assert';
+import Scatter from './scatter';
 import Vertex from './vertex';
 import Edge from './edge';
 import Triangle from './triangle';

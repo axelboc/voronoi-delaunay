@@ -3,6 +3,7 @@ import {expect} from 'chai';
 import Vertex from '../app/lib/vertex';
 import Edge from '../app/lib/edge';
 
+
 describe('Edge', function () {
 
 	describe('constructor', function () {

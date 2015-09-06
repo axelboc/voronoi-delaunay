@@ -1,6 +1,6 @@
 
 import assert from './assert';
-import Vertex from '../lib/vertex';
+import Vertex from './vertex';
 
 
 /**
@@ -62,7 +62,7 @@ function generate(alg, width, height, count, options) {
 	}
 	
 	// Ensure that the area is big enough to accomodate the amount of vertices
-	if (count <= width * height) {
+	if (width * height < count) {
 		throw new Error(`too many points to scatter: ${count}`);
 	}
 	
