@@ -2,7 +2,7 @@
 import { expect } from 'chai';
 import Scatter from '../app/lib/scatter';
 import Vertex from '../app/lib/vertex';
-import { distinct } from './helpers';
+import { distinct, timing } from './helpers';
 
 
 describe('Scatter', function () {
@@ -61,7 +61,18 @@ describe('Scatter', function () {
 			expect(yInRange).to.be.true;
 		});
 		
+		it.skip('should be efficient at generating sparse scatters', function () {
+			const func = Scatter.generate.bind(null, alg, 1280, 800, 200);
+			expect(timing(func)).to.be.lessThan(10);
+		});
 		
+		it.skip('should be efficient at generating dense scatters', function () {
+			// Remove Mocha's timeout
+			this.timeout(0);
+			const func = Scatter.generate.bind(null, alg, 1280, 800, 1024000);
+			
+			expect(timing(func, 3)).to.be.lessThan(2500);
+		});
 
 	});
 	
