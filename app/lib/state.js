@@ -1,5 +1,5 @@
 
-import { assert } from 'chai';
+import assert from './assert';
 
 
 /**

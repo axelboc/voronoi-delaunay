@@ -51,10 +51,10 @@ const algorithms = {
  * @return {Array} - the scattered vertices
  */
 function generate(alg, width, height, count, options) {
-	assert.nonEmptyString(alg);
-	assert.integerGt0(width);
-	assert.integerGt0(height);
-	assert.integerGt0(count);
+	assert.isNonEmptyString(alg);
+	assert.isIntegerGt0(width);
+	assert.isIntegerGt0(height);
+	assert.isIntegerGt0(count);
 	
 	// Check that the algorithm is implemented
 	if (!algorithms[alg]) {
