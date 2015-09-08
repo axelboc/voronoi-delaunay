@@ -1,7 +1,7 @@
 
 import { expect } from 'chai';
 import sinon from 'sinon';
-import StateMachine, { State } from '../app/lib/state-machine';
+import StateMachine from '../app/lib/state-machine';
 
 		
 describe('StateMachine', function () {
@@ -13,11 +13,6 @@ describe('StateMachine', function () {
 			expect(state).to.be.an('object');
 		});
 
-		it('should throw if the identifier of a state is not a symbol', function () {
-			const factory = StateMachine.create.bind(null, [{ id: 'INITIAL' }]);
-			expect(factory).to.throw(/must be a symbol/);
-		});
-
 		it('should not be in any state upon creation', function () {
 			let state = StateMachine.create([{ id: Symbol('INITIAL') }]);
 			expect(state.current).to.be.null;
@@ -26,6 +21,13 @@ describe('StateMachine', function () {
 	});
 	
 	describe('set', function () {
+
+		it('should throw if target state doesn\'t exist', function () {
+			let state = StateMachine.create([]);
+			const func = state.set.bind(state, Symbol('WRONG'));
+			
+			expect(func).to.throw(/state does not exist/);
+		});
 
 		it('should change the current state', function () {
 			const initial = Symbol('INITIAL');
@@ -65,16 +67,19 @@ describe('StateMachine', function () {
 		
 		it('should throw if initial state hasn\'t been set', function () {
 			let state = StateMachine.create([{ id: Symbol('INITIAL') }]);
-			expect(state.next).to.throw(/initial state not set/);
+			const func = state.next.bind(state);
+			
+			expect(func).to.throw(/initial state not set/);
 		});
 		
-		it('should throw if handler not provided', function () {
+		it('should throw if current state doesn\'t have a handler', function () {
 			const noHandler = Symbol('NO_HANDLER');
 			
 			let state = StateMachine.create([{ id: noHandler }]);
+			const func = state.next.bind(state);
 			state.set(noHandler);
 			
-			expect(state.next).to.throw(/handler not provided/);
+			expect(func).to.throw(/state has no handler/);
 		});
 		
 		it('should call the current state\'s handler', function () {
@@ -87,6 +92,19 @@ describe('StateMachine', function () {
 			state.next();
 			
 			expect(handler.called).to.be.true;
+		});
+		
+		it('should call the handler on the right scope', function () {
+			const initial = Symbol('INITIAL');
+			const scope = {};
+			
+			let handler = sinon.spy();
+			let state = StateMachine.create([{ id: initial, next: handler }], scope);
+			
+			state.set(initial);
+			state.next();
+			
+			expect(handler.calledOn(scope)).to.be.true;
 		});
 		
 		it('should remain in the current state after calling the handler', function () {
@@ -124,7 +142,9 @@ describe('StateMachine', function () {
 		
 		it('should throw if initial state hasn\'t been set', function () {
 			let state = StateMachine.create([{ id: Symbol('INITIAL') }]);
-			expect(state.mayPause).to.throw(/initial state not set/);
+			const func = state.mayPause.bind(state);
+			
+			expect(func).to.throw(/initial state not set/);
 		});
 		
 		it('should return whether the generation of the diagram may be paused in the current state', function () {
