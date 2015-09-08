@@ -71,12 +71,12 @@ function handleEvent(evt) {
 
 	// If an action is set on the element...
 	if (elem.dataset.action) {
-		// Get the AppController's method that corresponds to the action 
-		var method = actions[elem.dataset.action];
-		assert(typeof method === 'function', "unhandled action");
+		// Get the action 
+		var action = actions[elem.dataset.action];
+		assert(typeof action === 'function', "unhandled action");
 
-		// Call the action's method; if a parameter is provided, pass it as argument 
-		method.call(elem, elem.dataset.param);
+		// Call the action; if a parameter is provided, pass it as argument 
+		action.call(elem, elem.dataset.param);
 	}
 }
 
@@ -84,13 +84,13 @@ function handleEvent(evt) {
 let actions = {
 	
 	/**
-	 * Generate a new diagram
+	 * Initialise and generate a new diagram.
 	 */
 	generate() {
 		// Initialise and scatter the seeds
 		voronoi.init(false);
-
-		// In 'auto' mode, generate the diagram right away
+		
+		// In 'auto' mode, generate the diagram in one go
 		if (settings.mode === 'auto') {
 			voronoi.generate();
 
@@ -102,35 +102,24 @@ let actions = {
 			var showFieldset = document.getElementById('js-show');
 			showFieldset.setAttribute('disabled', 'disabled');
 		}
-
-		// Draw
-		voronoi.draw();
 	},
 
 	/**
 	 * Perform the next step of computation of the diagram.
 	 */
 	nextStep() {
-		if (voronoi.delaunayTriangles.length === 0) {
-			// Initialise the triangulation, and run the next step right away
-			voronoi.initDelaunay();
-			voronoi.nextDelaunayStep();
-
-		} else if (!voronoi.delaunayComplete) {
-			voronoi.nextDelaunayStep();
-
-		} else if (!voronoi.voronoiComplete) {
-			voronoi.computeVoronoi();
-
-			// Disable the next button once the diagram has been computed
+		// Resume the generation of the diagram until the next pause
+		const done = voronoi.resume();
+		
+		// If the diagram has been computed...
+		if (done) {
+			// Disable the next button
 			this.setAttribute('disabled', 'disabled');
-
+			
+			// Let the user show/hide the different layers of the diagram
 			var showFieldset = document.getElementById('js-show');
 			showFieldset.removeAttribute('disabled');
 		}
-
-		// Draw
-		voronoi.draw();
 	},
 
 	/**
@@ -138,12 +127,12 @@ let actions = {
 	 */
 	reset() {
 		voronoi.init(true);
-		voronoi.draw();
 
 		// Enable the next button
 		var next = document.getElementById('js-next');
 		next.removeAttribute('disabled');
-
+		
+		// Prevent 
 		var showFieldset = document.getElementById('js-show');
 		showFieldset.setAttribute('disabled', 'disabled');
 	},

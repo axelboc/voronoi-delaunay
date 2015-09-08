@@ -4,11 +4,22 @@ import Scatter from './scatter';
 import Vertex from './vertex';
 import Edge from './edge';
 import Triangle from './triangle';
+import StateMachine from './state-machine';
 
 
-// Possible states for the computation of the Delaunay triangulation
-const FIND_CAVITY_TRIANGLES = Symbol('FIND_CAVITY_TRIANGLES');
-const INSERT_SEED = Symbol('INSERT_SEED');
+/**
+ * The possible states of the generator.
+ * @type {Object}
+ */
+const states = {
+	INITIALISED: Symbol('INITIALISED'),
+	WRAPPED_WITH_TRIANGLE: Symbol('WRAPPED_WITH_TRIANGLE'),
+	SEED_PICKED: Symbol('SEED_PICKED'),
+	CAVITY_IDENTIFIED: Symbol('CAVITY_IDENTIFIED'),
+	SEED_ADDED: Symbol('SEED_ADDED'),
+	EXTRA_TRIANGLES_REMOVED: Symbol('EXTRA_TRIANGLES_REMOVED'),
+	VORONOI_COMPUTED: Symbol('VORONOI_COMPUTED')
+};
 
 
 /**
@@ -25,71 +36,95 @@ export default class Voronoi {
 		this.width = width;
 		this.height = height;
 		this.settings = settings;
+		
+		// Create the state machine
+		this.state = StateMachine.create([
+			{ id: states.INITIALISED, next: this._wrapWithTriangle, pause: true },
+			{ id: states.WRAPPED_WITH_TRIANGLE, next: this._pickSeed },
+			{ id: states.SEED_PICKED, next: this._identifyCavity },
+			{ id: states.CAVITY_IDENTIFIED, next: this._addSeed, pause: true },
+			{ id: states.SEED_ADDED, next: this._checkTrianguationStatus, pause: true },
+			{ id: states.EXTRA_TRIANGLES_REMOVED, next: this._computeVoronoi, pause: true },
+			{ id: states.VORONOI_COMPUTED, pause: true }
+		], this);
 	}
 	
 	/**
-	 * Initialise or reset the generator.
+	 * Initialise the generator.
 	 * To reset and regenerate the same diagram, pass `true` as argument.
 	 * @param {Boolean} keepScatter - whether to keep the previously scatterd seeds
 	 */
 	init(keepScatter) {
-		assert(typeof keepScatter === 'boolean', "argument `keepScatter` must be a boolean");
+		assert.isBoolean(keepScatter);
 		assert(!keepScatter || this.seeds && this.seeds.length > 0, "no scatter to keep");
 		
 		// Scatter the seeds, unless asked otherwise
 		if (!keepScatter) {
-			this.scatterSeeds();
+			this.seeds = Scatter.generate(
+				this.settings.seeds.scattering,
+				this.width,
+				this.height,
+				this.settings.size
+			);
 		}
 
 		// Initialise variables used to compute the Delaunay triangulation
 		this.delaunayTriangles = [];
-		this.delaunayComplete = false;
 		this.delaunayIndex = 0;
 		this.cavityTriangles = {};
 		this.cavityEdges = [];
 		this.newTriangles = [];
 		this.currentSeed = null;
-		this.delaunayState = FIND_CAVITY_TRIANGLES;
 
 		// Initialise variables used to compute the Voronoi diagram
 		this.voronoiComplete = false;
 		this.voronoiEdges = [];
+		
+		// Generator initialised
+		this.state.set(states.INITIALISED);
+		
+		// Draw
+		this.draw();
 	}
 	
 	/**
-	 * Scatter the seeds on the plane.
-	 */
-	scatterSeeds() {
-		this.seeds = Scatter.generate(
-			this.settings.seeds.scattering,
-			this.width,
-			this.height,
-			this.settings.size
-		);
-	}
-	
-	/**
-	 * Generate the diagram.
+	 * Generate the diagram in one go.
 	 */
 	generate() {
-		assert(this.seeds && this.seeds.length > 0, "seeds not scattered");
+		assert(this.state.is(states.INITIALISED), "unexpected state");
 		
-		// Prepare for the computation of the Delaunay triangulation
-		this.initDelaunay(false);
-
-		// Compute the Delaunay triangulation
-		while (!this.delaunayComplete) {
-			this.nextDelaunayStep(false);
+		// Process all the states
+		while (!this.state.is(states.VORONOI_COMPUTED)) {
+			this.state.next();
 		}
-
-		// Compute the Voronoi diagram from the triangulation
-		this.computeVoronoi();
+		
+		// Draw
+		this.draw();
+	}
+	
+	/**
+	 * Resume the generation of the diagram until the next possible pause.
+	 * @return {Boolean} - whether the diagram has been generated
+	 */
+	resume() {
+		// Process the next state and repeat until a paused is allowed
+		do {
+			this.state.next();
+		} while (!this.state.mayPause());
+		
+		// Draw
+		this.draw();
+		
+		return this.state.is(states.VORONOI_COMPUTED);
 	}
 
 	/**
-	 * Prepare for the computation of the Delaunay triangulation with the Bowyer-Watson algorithm.
+	 * Prepare for the computation of the Delaunay triangulation with the Bowyer-Watson algorithm
+	 * by wrapping the entire diagram area inside a triangle.
 	 */
-	initDelaunay() {
+	_wrapWithTriangle() {
+		assert(this.state.is(states.INITIALISED), "unexpected state");
+		
 		// Create the initial triangle that surrounds all of the seeds
 		// Create the three vertices
 		var v1 = new Vertex(-1, -1);
@@ -119,132 +154,158 @@ export default class Voronoi {
 		
 		// Add the vertices of the initial triangle to the seeds array
 		this.seeds = this.seeds.concat(initialTriangle.vertices);
+		
+		return states.WRAPPED_WITH_TRIANGLE;
 	}
-
+	
 	/**
-	 * Insert a new vertex in the Delaunay triangulation.
+	 * Pick the next seed to add to the triangulation.
 	 */
-	nextDelaunayStep() {
-		// Find the cavity triangles
-		if (this.delaunayState === FIND_CAVITY_TRIANGLES) {
-			// Reset
-			this.cavityTriangles = {};
-			this.newTriangles = [];
-			this.cavityEdges = [];
-			
-			// Select the next seed to be inserted
-			this.currentSeed = this.seeds[this.delaunayIndex];
-			this.delaunayIndex += 1;
-
-			// Find the triangles that contain the current seed in their circumscribing circle
-			// These triangles will be removed to form a 'cavity' around the seed
-			for (let i = 0; i < this.delaunayTriangles.length; i += 1) {
-				let t = this.delaunayTriangles[i];
-				if (t.circumcircleContains(this.currentSeed)) {
-					this.cavityTriangles[t.id] = t;
-				}
+	_pickSeed() {
+		assert.include([states.WRAPPED_WITH_TRIANGLE, states.SEED_ADDED], this.state.current, "unexpected state");
+		
+		// Select the next seed to be inserted
+		this.currentSeed = this.seeds[this.delaunayIndex];
+		this.delaunayIndex += 1;
+		
+		return states.SEED_PICKED;
+	}
+	
+	/**
+	 * Identify the triangles that contain the current seed in their circumscribing circles.
+	 * In the next step, these triangles will be removed to form a "cavity" in the triangulation.
+	 */
+	_identifyCavity() {
+		assert(this.state.is(states.SEED_PICKED), "unexpected state");
+		
+		// Reset previous cavity
+		this.cavityTriangles = {};
+		this.newTriangles = [];
+		this.cavityEdges = [];
+		
+		// Find the triangles that contain the current seed in their circumscribing circle
+		// These triangles will be removed to form a 'cavity' around the seed
+		for (let i = 0; i < this.delaunayTriangles.length; i += 1) {
+			let t = this.delaunayTriangles[i];
+			if (t.circumcircleContains(this.currentSeed)) {
+				this.cavityTriangles[t.id] = t;
 			}
+		}
+		
+		return states.CAVITY_IDENTIFIED;
+	}
+	
+	/**
+	 * Remove the cavity triangles, and then add the current seed to the triangulation by creating a new triangle
+	 * between the current seed and each of the cavity's edges.
+	 */
+	_addSeed() {
+		assert(this.state.is(states.CAVITY_IDENTIFIED), "unexpected state");
+		
+		var newEdges = {}, newEdgesToNewTriangles = {};
 
-			// Update the state
-			this.delaunayState = INSERT_SEED;
-			
-		// Insert the seed in the triangulation
-		} else {
-			var newEdges = {}, newEdgesToNewTriangles = {};
+		for (var tId in this.cavityTriangles) {
+			if (this.cavityTriangles.hasOwnProperty(tId)) {
+				let t = this.cavityTriangles[tId];
 
-			for (var tId in this.cavityTriangles) {
-				if (this.cavityTriangles.hasOwnProperty(tId)) {
-					let t = this.cavityTriangles[tId];
+				// Loop through the edges of the old triangle
+				for (let i = 0; i < 3; i += 1) {
+					var e = t.edges[i];
+					var neighbour = t.getNeighbour(e);
 
-					// Loop through the edges of the old triangle
-					for (let i = 0; i < 3; i += 1) {
-						var e = t.edges[i];
-						var neighbour = t.getNeighbour(e);
+					// If the neighbour is null or not a cavity triangle itself, create a new triangle using the shared edge
+					if (neighbour === null || !this.cavityTriangles[neighbour.id]) {
+						this.cavityEdges.push(e);
 
-						// If the neighbour is null or not a cavity triangle itself, create a new triangle using the shared edge
-						if (neighbour === null || !this.cavityTriangles[neighbour.id]) {
-							this.cavityEdges.push(e);
+						/* Make sure we don't create edges that already exist */
 
-							/* Make sure we don't create edges that already exist */
+						var sToV1 = newEdges[e.v1.id];
+						var v2ToS = newEdges[e.v2.id];
+						var sToV1Flag = false, v2ToSFlag = false;
 
-							var sToV1 = newEdges[e.v1.id];
-							var v2ToS = newEdges[e.v2.id];
-							var sToV1Flag = false, v2ToSFlag = false;
-
-							if (!sToV1) {
-								sToV1Flag = true;
-								sToV1 = new Edge(this.currentSeed, e.v1);
-								newEdges[e.v1.id] = sToV1;
-							}
-
-							if (!v2ToS) {
-								v2ToSFlag = true;
-								v2ToS = new Edge(e.v2, this.currentSeed);
-								newEdges[e.v2.id] = v2ToS;
-							}
-
-							// Create the new triangle
-							var newT = new Triangle([this.currentSeed, e.v1, e.v2], [sToV1, e, v2ToS], [null, neighbour, null]);
-
-							// Set new triangle as neighbour of the neighbour triangle
-							if (neighbour !== null) {
-								neighbour.setNeighbour(e, newT);
-							}
-
-							// Update neighbours for internal cavity edges
-							if (sToV1Flag) {
-								// Mark the edge as belonging to the new triangle
-								newEdgesToNewTriangles[sToV1.id] = newT;
-							} else {
-								// The edge already belongs to another new triangle; retrieve that triangle
-								var sToV1Neighbour = newEdgesToNewTriangles[sToV1.id];
-
-								// Update neighbours in both triangles
-								newT.setNeighbour(sToV1, sToV1Neighbour);
-								sToV1Neighbour.setNeighbour(sToV1, newT);
-							}
-
-							if (v2ToSFlag) {
-								// Mark the edge as belonging to the new triangle
-								newEdgesToNewTriangles[v2ToS.id] = newT;
-							} else {
-								// The edge already belongs to another new triangle; retrieve that triangle
-								var v2ToSNeighbour = newEdgesToNewTriangles[v2ToS.id];
-
-								// Update neighbours in both triangles
-								newT.setNeighbour(v2ToS, v2ToSNeighbour);
-								v2ToSNeighbour.setNeighbour(v2ToS, newT);
-							}
-
-
-							// Save the new triangle
-							this.newTriangles.push(newT);
-							this.delaunayTriangles.push(newT);
+						if (!sToV1) {
+							sToV1Flag = true;
+							sToV1 = new Edge(this.currentSeed, e.v1);
+							newEdges[e.v1.id] = sToV1;
 						}
+
+						if (!v2ToS) {
+							v2ToSFlag = true;
+							v2ToS = new Edge(e.v2, this.currentSeed);
+							newEdges[e.v2.id] = v2ToS;
+						}
+
+						// Create the new triangle
+						var newT = new Triangle([this.currentSeed, e.v1, e.v2], [sToV1, e, v2ToS], [null, neighbour, null]);
+
+						// Set new triangle as neighbour of the neighbour triangle
+						if (neighbour !== null) {
+							neighbour.setNeighbour(e, newT);
+						}
+
+						// Update neighbours for internal cavity edges
+						if (sToV1Flag) {
+							// Mark the edge as belonging to the new triangle
+							newEdgesToNewTriangles[sToV1.id] = newT;
+						} else {
+							// The edge already belongs to another new triangle; retrieve that triangle
+							var sToV1Neighbour = newEdgesToNewTriangles[sToV1.id];
+
+							// Update neighbours in both triangles
+							newT.setNeighbour(sToV1, sToV1Neighbour);
+							sToV1Neighbour.setNeighbour(sToV1, newT);
+						}
+
+						if (v2ToSFlag) {
+							// Mark the edge as belonging to the new triangle
+							newEdgesToNewTriangles[v2ToS.id] = newT;
+						} else {
+							// The edge already belongs to another new triangle; retrieve that triangle
+							var v2ToSNeighbour = newEdgesToNewTriangles[v2ToS.id];
+
+							// Update neighbours in both triangles
+							newT.setNeighbour(v2ToS, v2ToSNeighbour);
+							v2ToSNeighbour.setNeighbour(v2ToS, newT);
+						}
+
+
+						// Save the new triangle
+						this.newTriangles.push(newT);
+						this.delaunayTriangles.push(newT);
 					}
 				}
 			}
-
-			// Delete the old cavity triangles
-			this.deleteTriangles(this.cavityTriangles);
-			
-			// Update the state
-			this.delaunayState = FIND_CAVITY_TRIANGLES;
-
-			// The last three seeds are from the initial triangle
-			// If they are reached, it means the triangulation has been computed and needs to be cleaned up
-			if (this.delaunayIndex >= this.seeds.length - 3) {
-				this.cleanUpDelaunay();
-			}
 		}
+
+		// Delete the old cavity triangles
+		this.deleteTriangles(this.cavityTriangles);
+		
+		return states.SEED_ADDED;
+	}
+	
+	/**
+	 * Check the status of the triangulation. If all seeds have been added to the triangulation, 
+	 * proceed to remove the wrapper triangle; otherwise, pick the next seed.
+	 */
+	_checkTrianguationStatus() {
+		assert(this.state.is(states.SEED_ADDED), "unexpected state");
+		
+		// Ignore the last three seeds, which are from the initial wrapper triangle
+		if (this.delaunayIndex >= this.seeds.length - 3) {
+			// All seeds have been added to the triangulation; some tidying is now required
+			return this._removeExtraTriangles();
+		}
+		
+		// Pick the next seed
+		return this._pickSeed();
 	}
 
 	/**
-	 * Clean-up the Delaunay triangulation by removing the initial triangle as well as the perimeter triangles.
+	 * Remove the initial wrapper triangle and the perimeter triangles from the triangulation.
 	 */
-	cleanUpDelaunay() {
-		this.delaunayComplete = true;
-
+	_removeExtraTriangles() {
+		assert(this.state.is(states.SEED_ADDED), "unexpected state");
+		
 		// Find and remove the triangles on the perimeter of the triangulation
 		var perimeterTriangles = [];
 		var i, j, t;
@@ -265,12 +326,18 @@ export default class Voronoi {
 
 		// Remove the initial vertices
 		this.seeds.splice(this.seeds.length - 3, 3);
+		
+		return states.EXTRA_TRIANGLES_REMOVED;
 	}
 
 	/**
-	 * Build the Voronoi diagram from the Delaunay triangulation.
+	 * Deduce the Voronoi diagram from the Delaunay triangulation.
+	 * For each edge in the triangulation, create a new perpendicular edge between the circumcentres 
+	 * of the two triangles that share that edge.
 	 */
-	computeVoronoi() {
+	_computeVoronoi() {
+		assert(this.state.is(states.EXTRA_TRIANGLES_REMOVED), "unexpected state");
+		
 		this.voronoiComplete = true;
 
 		var i, j, t, n;
@@ -365,6 +432,8 @@ export default class Voronoi {
 				}
 			}
 		}
+		
+		return states.VORONOI_COMPUTED;
 	}
 
 	/**
