@@ -44,7 +44,7 @@ export default class Voronoi {
 			{ id: states.SEED_PICKED, next: this._identifyCavity },
 			{ id: states.CAVITY_IDENTIFIED, next: this._addSeed, pause: true },
 			{ id: states.SEED_ADDED, next: this._checkTrianguationStatus, pause: true },
-			{ id: states.EXTRA_TRIANGLES_REMOVED, next: this._computeVoronoi, pause: true },
+			{ id: states.EXTRA_TRIANGLES_REMOVED, next: this._computeVoronoi },
 			{ id: states.VORONOI_COMPUTED, pause: true }
 		], this);
 	}
